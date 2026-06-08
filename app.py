@@ -111,8 +111,9 @@ async def upload(
             biz_text = await parse_file(biz_file)
         if not tech_text and not biz_text:
             return templates.TemplateResponse(
+                request,
                 "index.html",
-                {"request": request, "error": "请至少上传技术标或商务标文件"},
+                {"error": "请至少上传技术标或商务标文件"},
             )
         bid_text = ""
         if tech_text:
@@ -125,8 +126,9 @@ async def upload(
         # 合并模式：单文件
         if not bid_file or not bid_file.filename:
             return templates.TemplateResponse(
+                request,
                 "index.html",
-                {"request": request, "error": "请上传投标文件"},
+                {"error": "请上传投标文件"},
             )
         bid_text = await parse_file(bid_file)
         bid_filename = bid_file.filename
@@ -138,8 +140,9 @@ async def upload(
 
     if not bid_text:
         return templates.TemplateResponse(
+            request,
             "index.html",
-            {"request": request, "error": "无法解析投标文件，请检查文件格式（支持 PDF/Word/图片）"},
+            {"error": "无法解析投标文件，请检查文件格式（支持 PDF/Word/图片）"},
         )
 
     job_id = str(uuid.uuid4())[:8]
