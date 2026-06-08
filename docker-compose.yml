@@ -1,0 +1,14 @@
+services:
+  godbiao:
+    build: .
+    container_name: godbiao
+    ports:
+      - "8880:8880"
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1/chat/completions}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./godbiao.db:/app/godbiao.db
+    restart: unless-stopped

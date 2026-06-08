@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>神奇阿标 (God Biao)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+
+/* Header */
+.header{text-align:center;padding:64px 20px 48px;background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%)}
+.header .logo{font-size:2.2em;font-weight:800;color:#1e40af;margin-bottom:12px;letter-spacing:-.02em}
+.header .logo span{color:#3b82f6}
+.header .sub{color:#64748b;font-size:1.05em;max-width:520px;margin:0 auto;line-height:1.7}
+.header .badge-row{display:flex;justify-content:center;gap:24px;margin-top:24px;flex-wrap:wrap}
+.header .badge{display:flex;align-items:center;gap:6px;color:#64748b;font-size:.82em;font-weight:500}
+.header .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#3b82f6}
+
+/* Container */
+.container{max-width:800px;margin:0 auto;padding:0 20px 60px}
+
+/* Card */
+.card{background:#fff;border-radius:14px;padding:28px;margin-bottom:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:border-color .2s}
+.card:hover{border-color:#cbd5e1}
+.card h2{font-size:1em;font-weight:700;color:#1e293b;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h2 .icon{font-size:1.2em}
+
+/* Form */
+label{display:block;color:#475569;margin-bottom:6px;font-size:.85em;font-weight:500}
+textarea,input[type="text"]{width:100%;padding:11px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;font-size:.9em;resize:vertical;transition:border-color .2s,box-shadow .2s}
+textarea:focus,input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1);background:#fff}
+input[type="file"]{color:#64748b;font-size:.9em}
+input[type="file"]::file-selector-button{background:#3b82f6;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;margin-right:12px;font-weight:600;font-size:.85em;transition:background .2s}
+input[type="file"]::file-selector-button:hover{background:#2563eb}
+.hint{color:#94a3b8;font-size:.78em;margin-top:6px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border:none;border-radius:8px;font-size:.95em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:#3b82f6;color:#fff;width:100%}
+.btn-primary:hover{background:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+.btn-settings{background:#fff;border:1px solid #e2e8f0;color:#475569;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.85em;font-weight:500;transition:all .2s}
+.btn-settings:hover{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
+.btn-settings.has-key{color:#059669;border-color:#059669;background:#ecfdf5}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.two-col{grid-template-columns:1fr}}
+
+/* 评标模式选择 */
+.mode-selector{display:flex;gap:12px}
+.mode-opt{flex:1;padding:16px;border:2px solid #e2e8f0;border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;background:#fff}
+.mode-opt:hover{border-color:#93c5fd}
+.mode-opt.active{border-color:#3b82f6;background:#eff6ff}
+.mode-opt .mode-icon{font-size:1.6em;margin-bottom:6px}
+.mode-opt .mode-label{font-weight:700;font-size:.9em;color:#1e293b}
+.mode-opt .mode-desc{font-size:.75em;color:#94a3b8;margin-top:4px}
+.mode-opt.active .mode-label{color:#1e40af}
+.separate-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:640px){.separate-row{grid-template-columns:1fr}}
+.file-box{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:14px;text-align:center}
+.file-box .box-label{font-size:.82em;font-weight:600;color:#64748b;margin-bottom:8px}
+.file-box input[type="file"]{font-size:.82em}
+.hidden{display:none}
+
+.error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:.9em}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:100;justify-content:center;align-items:flex-start;padding-top:80px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;border:1px solid #e2e8f0;width:90%;max-width:520px;max-height:78vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.modal h3{font-size:1.05em;font-weight:700;color:#1e293b;margin-bottom:16px}
+
+.key-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0}
+.key-row.current{border-color:#059669;background:#ecfdf5}
+.key-row .provider-name{font-weight:600;color:#1e293b;min-width:80px;font-size:.85em}
+.key-row .key-info{color:#94a3b8;font-size:.78em;flex:1}
+.key-row .btn-sm{border:none;border-radius:5px;cursor:pointer;font-size:.73em;font-weight:600;padding:4px 10px;transition:all .15s}
+.btn-sm-use{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0}
+.btn-sm-use:hover{background:#d1fae5}
+.btn-sm-test{background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe}
+.btn-sm-test:hover{background:#dbeafe}
+.btn-sm-del{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.btn-sm-del:hover{background:#fee2e2}
+.current-badge{display:inline-block;background:#059669;color:#fff;padding:2px 7px;border-radius:4px;font-size:.68em;font-weight:700;margin-left:4px}
+
+.add-form{margin-top:18px;padding-top:16px;border-top:1px solid #e2e8f0}
+.add-form h4{color:#1e293b;margin-bottom:10px;font-size:.9em}
+.add-form select,.add-form input{width:100%;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;color:#1e293b;margin-bottom:10px;font-size:.88em;transition:border-color .2s}
+.add-form select:focus,.add-form input:focus{outline:none;border-color:#3b82f6}
+.model-options{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.model-opt{padding:4px 10px;border:1px solid #e2e8f0;border-radius:5px;font-size:.78em;cursor:pointer;color:#64748b;transition:all .15s}
+.model-opt:hover{border-color:#93c5fd}
+.model-opt.sel{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.form-actions{display:flex;gap:8px}
+.btn-save{background:#059669;color:#fff;flex:1;justify-content:center}
+.btn-save:hover{background:#047857}
+.btn-test{background:#fff;border:1px solid #e2e8f0;color:#475569;flex:1;justify-content:center}
+.btn-test:hover{border-color:#3b82f6;color:#3b82f6}
+.btn-test:disabled{opacity:.5;cursor:wait}
+.test-result{margin-top:8px;font-size:.82em;word-break:break-all}
+.test-result.ok{color:#059669}
+.test-result.fail{color:#dc2626}
+
+/* Upload overlay */
+#upload-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#upload-overlay.active{display:flex}
+.upload-card{background:#fff;border-radius:16px;padding:36px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.upload-card .spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upload-card h3{font-size:1.1em;font-weight:700;color:#1e293b;margin-bottom:6px}
+.upload-card p{font-size:.84em;color:#64748b}
+
+/* History panel */
+.history-card{margin-top:20px}
+.history-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;transition:border-color .15s}
+.history-row:hover{border-color:#93c5fd}
+.history-row .h-file{font-weight:600;color:#1e293b;font-size:.85em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-row .h-meta{color:#94a3b8;font-size:.75em;white-space:nowrap}
+.history-row .h-btn{font-size:.73em;font-weight:600;padding:4px 10px;border-radius:5px;border:none;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.h-btn-view{background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe}
+.h-btn-view:hover{background:#dbeafe}
+.h-btn-del{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.h-btn-del:hover{background:#fee2e2}
+.h-empty{text-align:center;color:#94a3b8;padding:20px 0;font-size:.85em}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">神奇<span>阿标</span></div>
+  <p class="sub">上传投标文件 + 招标要求，AI 自动逐条比对，防止标书出错</p>
+  <div class="badge-row">
+    <span class="badge">AI 逐项核查</span>
+    <span class="badge">多模型支持</span>
+    <span class="badge">安全本地处理</span>
+  </div>
+  <div style="margin-top:16px">
+    <button class="btn-settings" id="settingsBtn" onclick="openSettings()">⚙️ 模型设置</button>
+  </div>
+</div>
+
+<div class="container">
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+  <!-- 评标模式选择 -->
+  <div class="card">
+    <h2><span class="icon">⚙️</span> 评标模式</h2>
+    <div class="mode-selector">
+      <div class="mode-opt active" id="modeCombined" onclick="switchMode('combined')">
+        <div class="mode-icon">📦</div>
+        <div class="mode-label">合并评标</div>
+        <div class="mode-desc">商务+技术在同一文件中</div>
+      </div>
+      <div class="mode-opt" id="modeSeparate" onclick="switchMode('separate')">
+        <div class="mode-icon">📂</div>
+        <div class="mode-label">分离评标</div>
+        <div class="mode-desc">商务标和技术标分开上传</div>
+      </div>
+    </div>
+    <input type="hidden" name="eval_mode" id="evalMode" value="combined">
+  </div>
+
+  <!-- 合并模式：单文件 -->
+  <div class="card" id="cardCombined">
+    <h2><span class="icon">📄</span> 上传投标文件</h2>
+    <label>投标文件（PDF / Word / 图片）</label>
+    <input type="file" name="bid_file" id="bidFile" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt">
+    <p class="hint">支持 PDF、Word、图片(OCR)、纯文本，最大 50MB</p>
+  </div>
+
+  <!-- 分离模式：技术标 + 商务标 -->
+  <div class="card hidden" id="cardSeparate">
+    <h2><span class="icon">📄</span> 上传投标文件（分离）</h2>
+    <div class="separate-row">
+      <div class="file-box">
+        <div class="box-label">🔧 技术标</div>
+        <input type="file" name="tech_file" id="techFile" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt">
+        <p class="hint" style="text-align:center">技术方案、参数响应等</p>
+      </div>
+      <div class="file-box">
+        <div class="box-label">💰 商务标</div>
+        <input type="file" name="biz_file" id="bizFile" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt">
+        <p class="hint" style="text-align:center">报价、资质、合同条款等</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📋</span> 招标要求</h2>
+    <div class="two-col">
+      <div>
+        <label>手动输入商务/技术要求</label>
+        <textarea name="requirements" rows="8" placeholder="逐条列出招标要求，例如：
+1. 服务器 CPU ≥ 32 核
+2. 内存 ≥ 128GB
+3. 交货期 ≤ 30 天
+..."></textarea>
+      </div>
+      <div>
+        <label>或上传招标文件（可选）</label>
+        <input type="file" name="req_file" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.txt">
+        <p class="hint">如不上传，以手动输入为准</p>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" id="submitBtn" onclick="showUploading()">📤 上传并预览</button>
+</form>
+
+
+  <div class="card history-card">
+    <h2><span class="icon">📋</span> 历史对比记录</h2>
+    <div id="historyList"><p class="h-empty">加载中...</p></div>
+  </div>
+
+<div class="footer" style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:.75em;line-height:1.8;border-top:1px solid #e2e8f0;margin-top:40px">
+  <p style="font-weight:600;color:#64748b">神奇阿标 — God Biao</p>
+  <p>作者：<a href="https://github.com/hello-fengsir" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:600">峰Sir</a> · 版本 v1.0</p>
+  <p style="color:#94a3b8;font-size:.9em">⚠️ 免责声明：本项目仅供学习交流使用，禁止用于任何商业用途。</p>
+  <p style="color:#94a3b8;font-size:.9em">使用者须自行承担因使用本项目产生的任何法律风险与责任。</p>
+</div>
+</div>
+
+<!-- Upload progress overlay -->
+<div id="upload-overlay">
+  <div class="upload-card">
+    <div class="spinner"></div>
+    <h3>📤 正在上传并解析文件...</h3>
+    <p>大文件可能需要 10-30 秒，请耐心等待</p>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="margin:0">⚙️ API Key 管理</h3>
+      <button onclick="closeSettings()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1.4em;line-height:1">&times;</button>
+    </div>
+    <div id="keyList"></div>
+    <div class="add-form">
+      <h4>➕ 添加新模型</h4>
+      <select id="providerSelect" onchange="onProviderChange()"><option value="">-- 选择模型提供商 --</option></select>
+      <div class="model-options" id="modelOptions"></div>
+      <input type="password" id="apiKeyInput" placeholder="粘贴 API Key（sk-...）">
+      <div class="form-actions">
+        <button class="btn btn-save" onclick="saveKey()">💾 保存</button>
+        <button class="btn btn-test" id="testBtn" onclick="testCurrentKey()">🔍 测试连接</button>
+      </div>
+      <div class="test-result" id="testResult"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='godbiao_keys';let modelPresets=[],_selModel='';
+async function initSettings(){cleanExpiredKeys();try{const r=await fetch('/api/model-presets');const d=await r.json();modelPresets=d.presets||[]}catch(e){}const s=document.getElementById('providerSelect');s.innerHTML='<option value="">-- 选择模型提供商 --</option>';modelPresets.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;s.appendChild(o)});refreshKeyList()}
+function keys(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return[]}}
+function saveKeys(a){localStorage.setItem(STORAGE_KEY,JSON.stringify(a))}
+function refreshKeyList(){const ks=keys(),list=document.getElementById('keyList'),btn=document.getElementById('settingsBtn'),aid=localStorage.getItem('godbiao_active')||'';if(ks.length===0){list.innerHTML='<p style="color:#94a3b8;text-align:center;padding:20px 0">暂无已保存的 API Key</p>';btn.classList.remove('has-key')}else{list.innerHTML=ks.map(k=>{const ia=k.id===aid;return`<div class="key-row${ia?' current':''}"><span class="provider-name">${esc(k.name)}${ia?' <span class="current-badge">当前</span>':''}</span><span class="key-info">${esc(k.model)} · ${mask(k.api_key)}</span>${ia?'':'<button class="btn-sm btn-sm-use" onclick="useKey(\''+k.id+'\')">使用</button>'}<button class="btn-sm btn-sm-test" onclick="testSavedKey(\''+k.id+'\')">测试</button><button class="btn-sm btn-sm-del" onclick="delKey(\''+k.id+'\')">删除</button></div>`}).join('');btn.classList.add('has-key')}}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cleanExpiredKeys(){const THREE_DAYS=3*24*60*60*1000,now=Date.now();let ks=keys();const before=ks.length;ks=ks.filter(k=>{if(!k.saved_at)return true;return now-k.saved_at<THREE_DAYS});if(ks.length<before){saveKeys(ks);const aid=localStorage.getItem('godbiao_active');if(aid&&!ks.find(k=>k.id===aid))localStorage.setItem('godbiao_active',ks.length>0?ks[0].id:'')}}
+function mask(k){return k&&k.length>8?k.slice(0,6)+'...'+k.slice(-4):'***'}
+function onProviderChange(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),o=document.getElementById('modelOptions');if(!p){o.innerHTML='';_selModel='';return}o.innerHTML=p.models.map((m,i)=>`<span class="model-opt${i===0?' sel':''}" onclick="pickModel(this,'${esc(m)}')">${esc(m)}</span>`).join('');_selModel=p.models[0]}
+function pickModel(e,m){e.parentElement.querySelectorAll('.model-opt').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');_selModel=m}
+function useKey(id){localStorage.setItem('godbiao_active',id);refreshKeyList()}
+async function testSavedKey(id){const k=keys().find(x=>x.id===id);if(!k)return;await doTest(k.base_url,k.api_key,k.model)}
+async function testCurrentKey(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),k=document.getElementById('apiKeyInput').value.trim(),m=_selModel||(p?p.models[0]:'');if(!p){showResult('请先选择模型提供商',false);return}if(!k){showResult('请先输入 API Key',false);return}await doTest(p.base_url,k,m)}
+async function doTest(bu,ak,md){const btn=document.getElementById('testBtn');btn.disabled=true;btn.textContent='⏳ 测试中...';showResult('',null);try{const r=await fetch('/api/test-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:bu,api_key:ak,model:md})});const d=await r.json();showResult(d.ok?`✅ 连接成功！模型: ${d.model}`:`❌ 失败 (HTTP ${d.status||'?'}): ${d.detail}`,d.ok)}catch(e){showResult(`❌ 网络错误: ${e.message}`,false)}btn.disabled=false;btn.textContent='🔍 测试连接'}
+function showResult(m,ok){const e=document.getElementById('testResult');e.textContent=m;e.className='test-result '+(ok===true?'ok':ok===false?'fail':'')}
+function saveKey(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),k=document.getElementById('apiKeyInput').value.trim(),m=_selModel||(p?p.models[0]:'');if(!p){alert('请选择模型提供商');return}if(!k){alert('请输入 API Key');return}const ks=keys(),id=p.id+'_'+Date.now();ks.push({id,name:p.name,base_url:p.base_url,model:m,api_key:k,saved_at:Date.now()});saveKeys(ks);localStorage.setItem('godbiao_active',id);document.getElementById('apiKeyInput').value='';document.getElementById('providerSelect').value='';document.getElementById('modelOptions').innerHTML='';_selModel='';showResult('✅ 已保存并使用',true);refreshKeyList()}
+function delKey(id){let ks=keys().filter(k=>k.id!==id);saveKeys(ks);if(localStorage.getItem('godbiao_active')===id)localStorage.setItem('godbiao_active',ks.length>0?ks[0].id:'');refreshKeyList()}
+function openSettings(){document.getElementById('settingsModal').classList.add('show');initSettings()}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('show')}
+document.addEventListener('click',function(e){if(e.target.id==='settingsModal')closeSettings()})
+
+
+// History panel
+async function loadHistory(){const list=document.getElementById('historyList');try{const r=await fetch('/api/jobs');const d=await r.json();if(!d.jobs||d.jobs.length===0){list.innerHTML='<p class="h-empty">暂无历史记录</p>';return}list.innerHTML=d.jobs.map(j=>`<div class="history-row"><span class="h-file" title="${esc(j.bid_filename)}">${esc(j.bid_filename||'未知文件')}</span><span class="h-meta">${(j.created_at||'').slice(0,16).replace('T',' ')}</span><span class="h-meta">${esc(j.model_used||'未比对')}</span><a href="/result/${j.id}" class="h-btn h-btn-view">查看</a><button class="h-btn h-btn-del" onclick="deleteHistory('${j.id}')">删除</button></div>`).join('')}catch(e){list.innerHTML='<p class="h-empty">加载失败</p>'}}
+async function deleteHistory(id){if(!confirm('确认删除此记录？'))return;await fetch('/api/jobs/'+id,{method:'DELETE'});loadHistory()}
+
+// Upload overlay
+function showUploading(){document.getElementById('upload-overlay').classList.add('active')}
+
+// 评标模式切换
+function switchMode(mode){
+  document.getElementById('evalMode').value=mode;
+  document.getElementById('modeCombined').classList.toggle('active',mode==='combined');
+  document.getElementById('modeSeparate').classList.toggle('active',mode==='separate');
+  document.getElementById('cardCombined').classList.toggle('hidden',mode!=='combined');
+  document.getElementById('cardSeparate').classList.toggle('hidden',mode!=='separate');
+  // 切换时清空另一模式的文件选择
+  if(mode==='combined'){document.getElementById('techFile').value='';document.getElementById('bizFile').value=''}
+  else{document.getElementById('bidFile').value=''}
+}
+cleanExpiredKeys();
+loadHistory();
+</script>
+</body>
+</html>

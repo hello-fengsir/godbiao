@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>比对结果 - 神奇阿标</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+
+/* Two-column layout */
+.page{display:flex;gap:24px;max-width:1300px;margin:0 auto;padding:32px 20px 60px;align-items:flex-start}
+.main{flex:1;min-width:0}
+.sidebar{width:320px;flex-shrink:0;position:sticky;top:32px}
+
+/* Top bar */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.topbar h1{font-size:1.25em;font-weight:800;color:#1e40af}
+.topbar .meta{font-size:.8em;color:#94a3b8;margin-top:4px}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#475569;text-decoration:none;font-size:.85em;font-weight:500;transition:all .2s}
+.btn-back:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+
+/* Verdict */
+.verdict{background:#fff;border-radius:14px;padding:20px 24px;margin-bottom:20px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.verdict.good{border-left:4px solid #22c55e}
+.verdict.warn{border-left:4px solid #eab308}
+.verdict.bad{border-left:4px solid #ef4444}
+.verdict h2{font-size:1.05em;font-weight:700;margin-bottom:6px}
+.verdict.good h2{color:#16a34a}
+.verdict.warn h2{color:#ca8a04}
+.verdict.bad h2{color:#dc2626}
+.verdict p{font-size:.85em;line-height:1.6;color:#475569}
+
+/* Score cards */
+.score-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.score-card{flex:1;min-width:120px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.score-card .val{font-size:1.8em;font-weight:800;line-height:1.1}
+.score-card .lbl{font-size:.72em;color:#94a3b8;margin-top:5px}
+.score-card.full .val{color:#16a34a}
+.score-card.part .val{color:#ca8a04}
+.score-card.fail .val{color:#dc2626}
+.score-card .bar{height:3px;border-radius:2px;margin-top:8px;background:#f1f5f9;overflow:hidden}
+.score-card.full .bar div{background:#22c55e;height:100%;border-radius:2px}
+.score-card.part .bar div{background:#eab308;height:100%;border-radius:2px}
+.score-card.fail .bar div{background:#ef4444;height:100%;border-radius:2px}
+
+/* Section title */
+.sect{font-size:.82em;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+
+/* Result items */
+.result-item{background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s}
+.result-item:hover{border-color:#cbd5e1}
+.result-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.d-pass{background:#22c55e}
+.d-part{background:#eab308}
+.d-fail{background:#ef4444}
+.d-miss{background:#94a3b8}
+.result-id{font-weight:700;font-size:.78em;color:#3b82f6;min-width:24px}
+.result-cat{font-size:.68em;color:#64748b;background:#f1f5f9;padding:2px 7px;border-radius:4px;font-weight:500}
+.result-title{flex:1;font-size:.84em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#334155}
+.result-tag{font-size:.72em;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.tag-pass{background:#dcfce7;color:#16a34a}
+.tag-part{background:#fef9c3;color:#a16207}
+.tag-fail{background:#fee2e2;color:#dc2626}
+.tag-miss{background:#f1f5f9;color:#64748b}
+.result-body{display:none;padding:0 14px 12px;border-top:1px solid #f1f5f9}
+.result-body.open{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:640px){.detail-grid{grid-template-columns:1fr}}
+.detail-box{background:#f8fafc;border-radius:8px;padding:10px;font-size:.8em;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:#334155}
+.detail-box.req{border-left:3px solid #3b82f6}
+.detail-box.res{border-left:3px solid #8b5cf6}
+.detail-box.res.issue{border-left:3px solid #ef4444;color:#b91c1c;background:#fef2f2}
+.detail-label{font-size:.68em;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.reason-line{font-size:.8em;color:#64748b;margin-top:8px;line-height:1.6}
+.suggestion-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:.8em;color:#1d4ed8;line-height:1.6}
+
+.empty{text-align:center;padding:60px 20px;color:#94a3b8}
+.empty p{font-size:1em;margin-top:10px}
+
+/* ── Sidebar ── */
+.sidebar-card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.04);margin-bottom:16px;overflow:hidden}
+.sidebar-card .hd{background:linear-gradient(135deg,#fef2f2,#fff7ed);padding:14px 18px;border-bottom:1px solid #fecaca;display:flex;align-items:center;gap:8px}
+.sidebar-card .hd h3{font-size:.9em;font-weight:700;color:#b91c1c}
+.sidebar-card .bd{padding:14px 18px}
+.kv-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.82em;gap:8px}
+.kv-row:last-child{border-bottom:none}
+.kv-label{color:#64748b;font-weight:500;flex-shrink:0;min-width:56px}
+.kv-value{color:#1e293b;text-align:right;word-break:break-all;line-height:1.5}
+
+.completeness{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;font-size:.78em;font-weight:700}
+.comp-full{background:#dcfce7;color:#16a34a}
+.comp-part{background:#fef9c3;color:#a16207}
+.comp-miss{background:#fee2e2;color:#dc2626}
+
+.sidebar-card.tech .hd{background:linear-gradient(135deg,#eff6ff,#f0f9ff);border-bottom-color:#bfdbfe}
+.sidebar-card.tech .hd h3{color:#1d4ed8}
+
+.confirm-box{background:#fffbeb;border:2px dashed #fcd34d;border-radius:12px;padding:14px 16px;font-size:.82em;color:#92400e;line-height:1.7}
+.confirm-box strong{display:block;margin-bottom:4px}
+
+/* Mobile: sidebar stacks below */
+@media(max-width:1024px){
+  .page{flex-direction:column}
+  .sidebar{width:100%;position:static}
+}
+@media(max-width:600px){.score-row{gap:6px}.score-card{padding:12px 8px;min-width:80px}.score-card .val{font-size:1.3em}}
+</style>
+</head>
+<body>
+
+<div class="page">
+<!-- ═══ Main Content ═══ -->
+<div class="main">
+
+<div class="topbar">
+  <div>
+    <h1>神奇阿标 · 比对报告</h1>
+    <div class="meta">{{ bid_filename }} · {{ model }} · {{ tokens }} tokens · {% if eval_mode == 'separate' %}📂 分离评标{% else %}📦 合并评标{% endif %}</div>
+  </div>
+  <a href="/" class="btn-back">← 新的比对</a>
+</div>
+
+{% set vclass = 'good' if full_pass_pct >= 80 else ('warn' if full_pass_pct >= 50 else 'bad') %}
+{% set vicon = '✅' if full_pass_pct >= 80 else ('⚠️' if full_pass_pct >= 50 else '❌') %}
+{% set vtitle = '该投标文件响应良好，建议投标' if full_pass_pct >= 80 else ('存在较多问题，建议修改后投标' if full_pass_pct >= 50 else '严重不满足招标要求，不建议投标') %}
+<div class="verdict {{ vclass }}">
+  <h2>{{ vicon }} {{ vtitle }}</h2>
+  <p>{{ overall or ('综合评分：完全满足 ' + full_pass_pct|string + '%，部分满足 ' + partial_pct|string + '%，不满足/缺失 ' + failed_pct|string + '%') }}</p>
+</div>
+
+<div class="score-row">
+  <div class="score-card full">
+    <div class="val">{{ full_pass }}</div>
+    <div class="lbl">✅ 完全满足 · {{ full_pass_pct }}%</div>
+    <div class="bar"><div style="width:{{ full_pass_pct }}%"></div></div>
+  </div>
+  <div class="score-card part">
+    <div class="val">{{ partial }}</div>
+    <div class="lbl">⚠️ 部分满足 · {{ partial_pct }}%</div>
+    <div class="bar"><div style="width:{{ partial_pct }}%"></div></div>
+  </div>
+  <div class="score-card fail">
+    <div class="val">{{ failed }}</div>
+    <div class="lbl">❌ 不满足/缺失 · {{ failed_pct }}%</div>
+    <div class="bar"><div style="width:{{ failed_pct }}%"></div></div>
+  </div>
+</div>
+
+{% if fmt_items %}
+{% set fscore = fmt_score|int %}
+{% set fclass = 'good' if fscore >= 80 else ('warn' if fscore >= 60 else 'bad') %}
+<div class="verdict {{ fclass }}" style="margin-top:8px">
+  <h2>📐 格式与排版评估 · {{ fmt_score }} 分</h2>
+  <p>{{ fmt_overall }}</p>
+</div>
+
+<div class="score-row">
+  <div class="score-card {{ 'full' if fscore >= 80 else ('part' if fscore >= 60 else 'fail') }}">
+    <div class="val" style="color:{{ '#16a34a' if fscore >= 80 else ('#ca8a04' if fscore >= 60 else '#dc2626') }}">{{ fmt_score }}<span style="font-size:.45em;font-weight:500">/100</span></div>
+    <div class="lbl">{{ '优秀' if fscore >= 80 else ('一般' if fscore >= 60 else '较差') }} · 格式评分</div>
+    <div class="bar"><div style="width:{{ fmt_score }}%;background:{{ '#22c55e' if fscore >= 80 else ('#eab308' if fscore >= 60 else '#ef4444') }}"></div></div>
+  </div>
+  <div class="score-card" style="flex:2">
+    <div class="lbl" style="text-align:left;margin-bottom:4px;font-weight:600;color:#475569">📐 评估维度覆盖</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+    {% for fi in fmt_items %}
+      {% set sev_color = {'严重':'#dc2626','一般':'#eab308','建议':'#3b82f6','良好':'#22c55e'} %}
+      <span style="font-size:.72em;padding:2px 8px;border-radius:10px;background:{{ sev_color.get(fi.severity,'#94a3b8') }}18;color:{{ sev_color.get(fi.severity,'#64748b') }};border:1px solid {{ sev_color.get(fi.severity,'#94a3b8') }}40">{{ fi.dimension }}</span>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="sect" style="margin-top:6px">📐 格式问题清单（{{ fmt_items|length }} 项）</div>
+{% for fi in fmt_items %}
+{% set sev_color = {'严重':'#dc2626','一般':'#eab308','建议':'#3b82f6','良好':'#22c55e'} %}
+{% set sev_bg = {'严重':'#fef2f2','一般':'#fefce8','建议':'#eff6ff','良好':'#f0fdf4'} %}
+{% set sev_border = {'严重':'#fecaca','一般':'#fde68a','建议':'#bfdbfe','良好':'#bbf7d0'} %}
+<div class="result-item" style="border-left:3px solid {{ sev_color.get(fi.severity,'#94a3b8') }};margin-bottom:4px">
+  <div class="result-header" onclick="this.nextElementSibling.classList.toggle('open')" style="background:{{ sev_bg.get(fi.severity,'#fff') }}">
+    <span class="result-id" style="color:{{ sev_color.get(fi.severity,'#64748b') }}">#{{ fi.id }}</span>
+    <span class="result-cat" style="background:{{ sev_color.get(fi.severity,'#3b82f6') }}18;color:{{ sev_color.get(fi.severity,'#3b82f6') }}">{{ fi.dimension }}</span>
+    <span class="result-title" style="flex:1">{{ fi.finding[:100] }}{% if fi.finding|length > 100 %}…{% endif %}</span>
+    <span class="result-tag" style="background:{{ sev_color.get(fi.severity,'#94a3b8') }}18;color:{{ sev_color.get(fi.severity,'#64748b') }};font-weight:600">{{ fi.severity }}</span>
+  </div>
+  <div class="result-body" style="border-top:1px solid {{ sev_border.get(fi.severity,'#e2e8f0') }}">
+    <div class="suggestion-box" style="margin-top:6px;background:{{ sev_bg.get(fi.severity,'#eff6ff') }};border-color:{{ sev_border.get(fi.severity,'#bfdbfe') }};color:#334155">
+      {% if fi.severity == '良好' %}✅ {% else %}🔧 {% endif %}{{ fi.suggestion }}
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="sect">📋 逐项比对详情（{{ total }} 项）</div>
+
+{% for r in results %}
+<div class="result-item">
+  <div class="result-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    {% set dc={'满足':'d-pass','部分满足':'d-part','不满足':'d-fail','缺失':'d-miss'} %}
+    {% set tc={'满足':'tag-pass','部分满足':'tag-part','不满足':'tag-fail','缺失':'tag-miss'} %}
+    <span class="status-dot {{ dc.get(r.status,'d-miss') }}"></span>
+    <span class="result-id">#{{ r.id }}</span>
+    <span class="result-cat">{{ r.category }}</span>
+    <span class="result-title">{{ r.requirement[:80] }}{% if r.requirement|length > 80 %}…{% endif %}</span>
+    <span class="result-tag {{ tc.get(r.status,'tag-miss') }}">{{ r.status }}</span>
+  </div>
+  <div class="result-body">
+    <div class="detail-grid">
+      <div>
+        <div class="detail-label">📋 招标要求</div>
+        <div class="detail-box req">{{ r.requirement }}</div>
+      </div>
+      <div>
+        <div class="detail-label">📄 投标响应</div>
+        <div class="detail-box res {% if r.status != '满足' %}issue{% endif %}">{{ r.response or '(未找到对应内容)' }}</div>
+      </div>
+    </div>
+    <div class="reason-line">💡 {{ r.reason }}</div>
+    {% if r.suggestion %}
+    <div class="suggestion-box">🔧 {{ r.suggestion }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% if not results %}
+<div class="empty"><div style="font-size:3em">📭</div><p>暂无比对结果</p></div>
+{% endif %}
+
+</div><!-- /main -->
+
+<!-- ═══ Sidebar ═══ -->
+<div class="sidebar">
+  {% set biz = key_info.get('business', {}) if key_info else {} %}
+  {% set tech = key_info.get('technical', {}) if key_info else {} %}
+
+  {% if biz or tech %}
+  <!-- Business Card -->
+  <div class="sidebar-card">
+    <div class="hd"><h3>💰 商务关键项</h3></div>
+    <div class="bd">
+      <div class="kv-row"><span class="kv-label">项目金额</span><span class="kv-value">{{ biz.get('total_amount', '未提及') or '未提及' }}</span></div>
+      <div class="kv-row"><span class="kv-label">货　　期</span><span class="kv-value">{{ biz.get('delivery', '未提及') or '未提及' }}</span></div>
+      <div class="kv-row"><span class="kv-label">付款方式</span><span class="kv-value">{{ biz.get('payment', '未提及') or '未提及' }}</span></div>
+      <div class="kv-row"><span class="kv-label">项目清单</span><span class="kv-value" style="font-size:.78em">{{ biz.get('scope', '未提及') or '未提及' }}</span></div>
+    </div>
+  </div>
+
+  <!-- Technical Card -->
+  <div class="sidebar-card tech">
+    <div class="hd"><h3>🔧 技术关键项</h3></div>
+    <div class="bd">
+      <div class="kv-row">
+        <span class="kv-label">技术方案</span>
+        <span class="kv-value">
+          {% set tc = tech.get('tech_completeness', '') %}
+          <span class="completeness {{ 'comp-full' if tc == '完整' else ('comp-part' if tc == '部分' else 'comp-miss') }}">{{ tc or '未知' }}</span>
+        </span>
+      </div>
+      {% if tech.get('tech_summary') %}
+      <div class="kv-row" style="font-size:.78em;color:#64748b">{{ tech.tech_summary }}</div>
+      {% endif %}
+      <div class="kv-row">
+        <span class="kv-label">实施方案</span>
+        <span class="kv-value">
+          {% set ic = tech.get('impl_completeness', '') %}
+          <span class="completeness {{ 'comp-full' if ic == '完整' else ('comp-part' if ic == '部分' else 'comp-miss') }}">{{ ic or '未知' }}</span>
+        </span>
+      </div>
+      {% if tech.get('impl_summary') %}
+      <div class="kv-row" style="font-size:.78em;color:#64748b">{{ tech.impl_summary }}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Info Comparison Card -->
+  {% set tenderer = key_info.get('tenderer', {}) if key_info else {} %}
+  {% set bidder = key_info.get('bidder', {}) if key_info else {} %}
+  <div class="sidebar-card" style="border-top:3px solid #8b5cf6">
+    <div class="hd" style="background:linear-gradient(135deg,#f5f3ff,#faf5ff);border-bottom-color:#c4b5fd"><h3 style="color:#6d28d9">📊 双方信息对比</h3></div>
+    <div class="bd">
+      <div style="font-size:.75em;font-weight:700;color:#6d28d9;margin-bottom:6px">🏢 招标方</div>
+      <div class="kv-row"><span class="kv-label">单位</span><span class="kv-value">{{ tenderer.get('name', '未提及') or '未提及' }}</span></div>
+      <div class="kv-row"><span class="kv-label">联系</span><span class="kv-value">{{ tenderer.get('contact', '未提及') or '未提及' }}</span></div>
+      <div style="font-size:.75em;font-weight:700;color:#059669;margin:10px 0 6px">📝 投标方</div>
+      <div class="kv-row"><span class="kv-label">单位</span><span class="kv-value">{{ bidder.get('name', '未提及') or '未提及' }}</span></div>
+      <div class="kv-row"><span class="kv-label">联系</span><span class="kv-value">{{ bidder.get('contact', '未提及') or '未提及' }}</span></div>
+      {% set qd = biz.get('quotation_detail','') if biz else '' %}
+      {% if qd and qd != '未提及' %}
+      <div style="font-size:.75em;font-weight:700;color:#b91c1c;margin:10px 0 6px">💲 报价明细</div>
+      <div class="kv-row" style="font-size:.76em;color:#475569;line-height:1.6;white-space:pre-wrap">{{ qd }}</div>
+      {% endif %}
+      {% set it = key_info.get('item_table','') if key_info else '' %}
+      {% if it and it != '未提及' %}
+      <div style="font-size:.75em;font-weight:700;color:#1e40af;margin:10px 0 6px">📦 设备/服务清单</div>
+      <div class="kv-row" style="font-size:.74em;color:#475569;line-height:1.6;white-space:pre-wrap;font-family:monospace">{{ it }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Confirmation Reminder -->
+  <div class="confirm-box">
+    <strong>⚠️ 请逐项确认</strong>
+    以上商务和技术关键项由 AI 自动提取，<br>可能存在遗漏或偏差。<br>提交前请务必与标书原文核对。
+  </div>
+</div><!-- /sidebar -->
+
+</div><!-- /page -->
+
+<div class="footer" style="text-align:center;padding:32px 20px;color:#94a3b8;font-size:.75em;line-height:1.8;border-top:1px solid #e2e8f0;max-width:1300px;margin:0 auto">
+  <p style="font-weight:600;color:#64748b">神奇阿标 — God Biao</p>
+  <p>作者：<a href="https://github.com/hello-fengsir" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:600">峰Sir</a> · 版本 v1.0</p>
+  <p style="color:#94a3b8;font-size:.9em">⚠️ 免责声明：本项目仅供学习交流使用，禁止用于任何商业用途。</p>
+  <p style="color:#94a3b8;font-size:.9em">使用者须自行承担因使用本项目产生的任何法律风险与责任。</p>
+</div>
+
+<script>
+document.querySelectorAll('.result-item').forEach(function(item){
+  var tag=item.querySelector('.result-tag');
+  if(tag&&tag.textContent.trim()!=='满足')item.querySelector('.result-body').classList.add('open');
+});
+</script>
+</body>
+</html>

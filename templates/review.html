@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预览确认 - 神奇阿标</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:40px 20px 60px}
+.header{text-align:center;padding:0 0 32px}
+.header h1{font-size:1.5em;font-weight:800;color:#1e40af;margin-bottom:8px}
+.stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 20px;text-align:center;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.stat .num{font-size:1.3em;font-weight:700;color:#3b82f6}
+.stat .label{font-size:.73em;color:#94a3b8;margin-top:4px}
+.card{background:#fff;border-radius:14px;padding:24px;margin-bottom:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h3{font-size:.95em;font-weight:700;color:#1e293b;margin-bottom:14px}
+.pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;max-height:360px;overflow-y:auto;font-size:.85em;line-height:1.7;white-space:pre-wrap;word-break:break-all;color:#475569}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;border:none;border-radius:10px;font-size:1em;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-compare{width:100%;background:#3b82f6;color:#fff;margin-top:8px}
+.btn-compare:hover{background:#2563eb;box-shadow:0 4px 16px rgba(37,99,235,.25)}
+.btn-compare:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+
+/* Progress overlay */
+#progress-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.75);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#progress-overlay.active{display:flex}
+.progress-card{background:#fff;border-radius:18px;padding:40px 36px 32px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);text-align:center}
+.progress-card h2{font-size:1.2em;font-weight:800;color:#1e293b;margin-bottom:6px}
+.progress-card .sub{font-size:.82em;color:#64748b;margin-bottom:24px}
+
+/* Phase indicator */
+.phase-steps{display:flex;justify-content:space-between;margin-bottom:8px;position:relative}
+.phase-steps::before{content:'';position:absolute;top:14px;left:0;right:0;height:2px;background:#e2e8f0;z-index:0}
+.phase-step{display:flex;flex-direction:column;align-items:center;gap:8px;z-index:1;flex:1}
+.phase-dot{width:30px;height:30px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:.8em;transition:all .3s;border:2.5px solid #e2e8f0}
+.phase-dot.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.phase-dot.active{background:#3b82f6;border-color:#3b82f6;color:#fff;box-shadow:0 0 0 6px rgba(59,130,246,.2);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(59,130,246,.2)}50%{box-shadow:0 0 0 14px rgba(59,130,246,.05)}}
+.phase-label{font-size:.68em;color:#94a3b8;font-weight:600;transition:color .3s}
+.phase-label.active{color:#3b82f6}
+.phase-label.done{color:#16a34a}
+
+/* Progress bar */
+.bar-wrap{background:#f1f5f9;border-radius:8px;height:8px;margin:20px 0 10px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:8px;transition:width .5s ease;width:0%}
+.bar-pct{font-size:.85em;font-weight:700;color:#3b82f6;margin-bottom:4px}
+
+/* Status text */
+.status-text{font-size:.8em;color:#64748b;min-height:20px}
+.est-time{font-size:.73em;color:#94a3b8;margin-top:2px}
+
+/* Error */
+.error-msg{display:none;margin-top:16px;padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#dc2626;font-size:.82em}
+.error-msg.show{display:block}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>📋 确认比对内容</h1>
+{% if eval_mode == 'separate' %}<p style="color:#8b5cf6;font-size:.85em;margin-top:6px">📂 分离评标模式 · 技术标 + 商务标</p>{% else %}<p style="color:#3b82f6;font-size:.85em;margin-top:6px">📦 合并评标模式</p>{% endif %}</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">{{ bid_full_len }}</div><div class="label">投标文件字数</div></div>
+  <div class="stat"><div class="num">{{ req_full_len }}</div><div class="label">要求字数</div></div>
+  <div class="stat"><div class="num">{{ bid_filename }}</div><div class="label">文件名</div></div>
+</div>
+
+<div class="card">
+  <h3>📄 投标文件预览（全文）</h3>
+  <div class="pre">{{ bid_text_preview }}</div>
+</div>
+
+<div class="card">
+  <h3>📋 招标要求预览（全文）</h3>
+  <div class="pre">{{ req_text or '(未填写)' }}</div>
+</div>
+
+<button class="btn btn-compare" id="compareBtn" onclick="startCompare()">
+   🤖 开始 AI 比对（内容+格式）
+</button>
+
+<div class="footer" style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:.75em;line-height:1.8;border-top:1px solid #e2e8f0;margin-top:40px">
+  <p style="font-weight:600;color:#64748b">神奇阿标 — God Biao</p>
+  <p>作者：<a href="https://github.com/hello-fengsir" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:600">峰Sir</a> · 版本 v1.0</p>
+  <p style="color:#94a3b8;font-size:.9em">⚠️ 免责声明：本项目仅供学习交流使用，禁止用于任何商业用途。</p>
+  <p style="color:#94a3b8;font-size:.9em">使用者须自行承担因使用本项目产生的任何法律风险与责任。</p>
+</div>
+</div>
+
+<!-- Progress Overlay -->
+<div id="progress-overlay">
+  <div class="progress-card">
+    <h2>🔍 AI 正在分析...</h2>
+    <div class="sub" id="phaseTitle">准备中</div>
+
+    <!-- Phase steps -->
+    <div class="phase-steps">
+      <div class="phase-step">
+        <div class="phase-dot" id="dot-upload">📤</div>
+        <div class="phase-label" id="lbl-upload">提交</div>
+      </div>
+      <div class="phase-step">
+        <div class="phase-dot" id="dot-content">📋</div>
+        <div class="phase-label" id="lbl-content">内容比对</div>
+      </div>
+      <div class="phase-step">
+        <div class="phase-dot" id="dot-format">📐</div>
+        <div class="phase-label" id="lbl-format">格式评估</div>
+      </div>
+      <div class="phase-step">
+        <div class="phase-dot" id="dot-done">✅</div>
+        <div class="phase-label" id="lbl-done">完成</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="bar-wrap"><div class="bar-fill" id="bar"></div></div>
+    <div class="bar-pct" id="pct">0%</div>
+    <div class="status-text" id="status">正在启动分析引擎...</div>
+    <div class="est-time" id="estTime">预计耗时 60-120 秒</div>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='godbiao_keys';
+function keys(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return[]}}
+function getActiveKey(){const ks=keys(),aid=localStorage.getItem('godbiao_active');return ks.find(k=>k.id===aid)||ks[0]||null}
+
+let pollTimer=null, startTime=null;
+const phases=['upload','content','format','done'];
+const phaseNames={upload:'提交任务',content:'内容逐条比对',format:'格式排版评估',done:'生成报告'};
+const phasePcts={upload:5,content:45,format:80,done:100};
+
+function setPhase(phase){
+  phases.forEach((p,i)=>{
+    const dot=document.getElementById('dot-'+p),lbl=document.getElementById('lbl-'+p);
+    const idx=phases.indexOf(phase);
+    if(i<idx){dot.className='phase-dot done';dot.textContent='✓';lbl.className='phase-label done'}
+    else if(i===idx){dot.className='phase-dot active';lbl.className='phase-label active'}
+    else{dot.className='phase-dot';lbl.className='phase-label'}
+  });
+  document.getElementById('phaseTitle').textContent=phaseNames[phase]||'';
+}
+
+function updateBar(pct){document.getElementById('bar').style.width=pct+'%';document.getElementById('pct').textContent=Math.round(pct)+'%'}
+
+function updateStatus(msg){document.getElementById('status').textContent=msg}
+
+function updateEst(seconds){
+  const m=Math.floor(seconds/60),s=Math.floor(seconds%60);
+  document.getElementById('estTime').textContent=m>0?'预计还需 '+m+' 分 '+s+' 秒':'预计还需 '+s+' 秒';
+}
+
+function showError(msg){
+  const el=document.getElementById('errorMsg');
+  el.textContent='❌ '+msg;
+  el.classList.add('show');
+  document.getElementById('estTime').textContent='';
+}
+
+async function startCompare(){
+  const btn=document.getElementById('compareBtn');
+  btn.disabled=true;
+  btn.textContent='⏳ 分析中...';
+
+  const ak=getActiveKey();
+  if(!ak){
+    btn.disabled=false;
+    btn.textContent='🤖 开始 AI 比对（内容+格式）';
+    alert('请先在首页点击「⚙️ 模型设置」配置 API Key');
+    return;
+  }
+
+  // Show overlay
+  document.getElementById('progress-overlay').classList.add('active');
+  setPhase('upload');updateBar(5);updateStatus('正在提交分析任务...');
+  startTime=Date.now();
+  let pct=5;
+
+  // Start comparison (non-blocking call, we poll)
+  fetch('/compare/{{ job_id }}',{
+    method:'POST',
+    headers:{
+      'X-API-Key':ak.api_key,
+      'X-API-Base-Url':ak.base_url,
+      'X-API-Model':ak.model,
+      'X-API-Provider-Name':encodeURIComponent(ak.name)
+    }
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){showError(d.error);btn.disabled=false;btn.textContent='🤖 重试比对';return}
+    // Done - redirect
+    window.location.href='/result/{{ job_id }}';
+  }).catch(e=>{showError(e.message);btn.disabled=false;btn.textContent='🤖 重试比对'});
+
+  // Start polling progress
+  setPhase('content');updateBar(15);updateStatus('正在逐条比对内容...');
+  pollTimer=setInterval(pollProgress,1500);
+}
+
+async function pollProgress(){
+  try{
+    const r=await fetch('/api/compare-status/{{ job_id }}');
+    const d=await r.json();
+    const elapsed=(Date.now()-startTime)/1000;
+
+    if(d.phase==='done'){
+      clearInterval(pollTimer);
+      setPhase('done');updateBar(98);updateStatus('✅ 分析完成，正在跳转结果页...');
+      updateEst(0);
+      return;
+    }
+
+    if(d.phase==='error'){
+      clearInterval(pollTimer);
+      updateBar(0);
+      showError(d.error||'分析过程中出现错误');
+      return;
+    }
+
+    // Map server phase to UI
+    if(d.content_done && d.format_done){
+      setPhase('format');updateBar(85);updateStatus('正在生成分析报告...');
+    }else if(d.content_done){
+      setPhase('format');updateBar(55);updateStatus('正在进行格式与排版评估...');
+    }else{
+      setPhase('content');updateBar(Math.min(40,15+elapsed*0.5));updateStatus('正在逐条比对招标要求与投标响应...');
+    }
+
+    // Update ETA
+    if(elapsed>5)updateEst(Math.max(0,90-elapsed));
+
+  }catch(e){/* ignore poll errors */}
+}
+</script>
+</body>
+</html>
