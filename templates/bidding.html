@@ -7,13 +7,18 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:120px;background:#1e293b;display:flex;flex-direction:column;padding-top:32px;z-index:50;box-shadow:2px 0 12px rgba(0,0,0,.1)}
+.sidebar-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px;color:#94a3b8;text-decoration:none;font-size:1.05em;font-weight:700;transition:all .2s;border-left:3px solid transparent;margin:4px 0}
+.sidebar-item:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
+.sidebar-item.active{background:rgba(59,130,246,.15);color:#fff;border-left-color:#3b82f6}
+.sidebar-icon{font-size:1.6em}
+.main-content{margin-left:120px}
+
 .container{max-width:1200px;margin:0 auto;padding:24px 20px}
 .header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #e2e8f0;margin-bottom:24px}
 .header h1{font-size:1.4em;font-weight:800;color:#1e40af}
-.nav-btns{display:flex;gap:8px}
-.nav-btns a{text-decoration:none;padding:8px 20px;border-radius:8px;font-weight:600;font-size:.9em;transition:all .2s}
-.nav-btns .bid-active{background:#3b82f6;color:#fff}
-.nav-btns .eval-link{background:#fff;color:#64748b;border:1px solid #e2e8f0}
 
 .controls{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
 .controls select,.controls input{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:.9em;background:#fff}
@@ -52,13 +57,23 @@ tr:hover{background:#f8fafc}
 </style>
 </head>
 <body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <a href="/bidding" class="sidebar-item active">
+    <span class="sidebar-icon">📝</span>
+    <span>制标</span>
+  </a>
+  <a href="/" class="sidebar-item">
+    <span class="sidebar-icon">🔍</span>
+    <span>评标</span>
+  </a>
+</div>
+
+<div class="main-content">
 <div class="container">
   <div class="header">
     <h1>📝 制标 — 产品参数配置</h1>
-    <div class="nav-btns">
-      <a href="/bidding" class="bid-active">📝 制标</a>
-      <a href="/" class="eval-link">🔍 评标</a>
-    </div>
   </div>
 
   <div class="controls">
@@ -275,5 +290,8 @@ async function exportWord() {
 // Init
 loadCategories();
 </script>
+
+</div><!-- end main-content -->
+
 </body>
 </html>

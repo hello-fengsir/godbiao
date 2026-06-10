@@ -9,6 +9,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
 
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:120px;background:#1e293b;display:flex;flex-direction:column;padding-top:32px;z-index:50;box-shadow:2px 0 12px rgba(0,0,0,.1)}
+.sidebar-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px;color:#94a3b8;text-decoration:none;font-size:1.05em;font-weight:700;transition:all .2s;border-left:3px solid transparent;margin:4px 0}
+.sidebar-item:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
+.sidebar-item.active{background:rgba(59,130,246,.15);color:#fff;border-left-color:#3b82f6}
+.sidebar-icon{font-size:1.6em}
+.main-content{margin-left:120px}
+
 /* Header */
 .header{text-align:center;padding:64px 20px 48px;background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%)}
 .header .logo{font-size:2.2em;font-weight:800;color:#1e40af;margin-bottom:12px;letter-spacing:-.02em}
@@ -128,11 +136,19 @@ input[type="file"]::file-selector-button:hover{background:#2563eb}
 </head>
 <body>
 
-<!-- Nav -->
-<div style="display:flex;gap:8px;justify-content:center;padding:12px 20px 0">
-  <a href="/bidding" style="padding:8px 20px;border-radius:8px;font-weight:600;font-size:.9em;text-decoration:none;background:#fff;color:#64748b;border:1px solid #e2e8f0">📝 制标</a>
-  <a href="/" style="padding:8px 20px;border-radius:8px;font-weight:600;font-size:.9em;text-decoration:none;background:#3b82f6;color:#fff">🔍 评标</a>
+<!-- Sidebar -->
+<div class="sidebar">
+  <a href="/bidding" class="sidebar-item">
+    <span class="sidebar-icon">📝</span>
+    <span>制标</span>
+  </a>
+  <a href="/" class="sidebar-item active">
+    <span class="sidebar-icon">🔍</span>
+    <span>评标</span>
+  </a>
 </div>
+
+<div class="main-content">
 
 <div class="header">
   <div class="logo">神奇<span>阿标</span></div>
@@ -307,5 +323,8 @@ function switchMode(mode){
 cleanExpiredKeys();
 loadHistory();
 </script>
+
+</div><!-- end main-content -->
+
 </body>
 </html>
