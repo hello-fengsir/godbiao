@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir \
     fastapi uvicorn jinja2 python-multipart \
     pdfplumber python-docx pytesseract pillow pymupdf \
-    aiofiles aiosqlite httpx
+    aiofiles aiosqlite httpx openpyxl
 
 # Copy app
-COPY app.py config.py parser.py llm_client.py ./
+COPY app.py config.py parser.py llm_client.py models.py import_products.py product_data.xlsx ./
 COPY templates/ ./templates/
 COPY static/ ./static/
 

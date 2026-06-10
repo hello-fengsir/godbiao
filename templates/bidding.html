@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>制标 - 神奇阿标</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:24px 20px}
+.header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #e2e8f0;margin-bottom:24px}
+.header h1{font-size:1.4em;font-weight:800;color:#1e40af}
+.nav-btns{display:flex;gap:8px}
+.nav-btns a{text-decoration:none;padding:8px 20px;border-radius:8px;font-weight:600;font-size:.9em;transition:all .2s}
+.nav-btns .bid-active{background:#3b82f6;color:#fff}
+.nav-btns .eval-link{background:#fff;color:#64748b;border:1px solid #e2e8f0}
+
+.controls{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.controls select,.controls input{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:.9em;background:#fff}
+.controls select{min-width:180px}
+
+.table-wrap{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{background:#f1f5f9;padding:10px 12px;text-align:left;font-size:.82em;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0}
+td{padding:8px 12px;font-size:.85em;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:hover{background:#f8fafc}
+.specs-cell{max-width:400px;word-break:break-all;line-height:1.5;color:#475569}
+.model-cell{font-weight:600;white-space:nowrap}
+.check-cell{width:40px;text-align:center}
+
+.module-panel{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px;display:none}
+.module-panel h3{font-size:1em;margin-bottom:12px;color:#1e293b}
+.module-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:.85em}
+.module-item .prod-name{flex:1;color:#475569}
+.module-item select{min-width:160px}
+.module-item .custom-input{min-width:140px;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:.82em}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:8px;font-size:.9em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-outline{background:#fff;color:#3b82f6;border:1px solid #3b82f6}
+.btn-outline:hover{background:#eff6ff}
+.btn-export{background:#22c55e;color:#fff;font-size:1em;padding:12px 32px}
+.btn-export:hover{background:#16a34a}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.selected-count{font-size:.85em;color:#64748b;padding:6px 12px;background:#f1f5f9;border-radius:6px}
+
+.footer{text-align:center;padding:40px 20px;color:#94a3b8;font-size:.75em;line-height:1.8;border-top:1px solid #e2e8f0;margin-top:40px}
+.empty-state{text-align:center;padding:60px 20px;color:#94a3b8}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📝 制标 — 产品参数配置</h1>
+    <div class="nav-btns">
+      <a href="/bidding" class="bid-active">📝 制标</a>
+      <a href="/" class="eval-link">🔍 评标</a>
+    </div>
+  </div>
+
+  <div class="controls">
+    <select id="categorySelect" onchange="onCategoryChange()">
+      <option value="">-- 选择产品分类 --</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="搜索型号或参数..." oninput="filterTable()" style="min-width:200px">
+  </div>
+
+  <div class="toolbar">
+    <span class="selected-count" id="countLabel">已选 0 个产品</span>
+    <button class="btn btn-outline" onclick="showModulePanel()" id="tagBtn" disabled>🏷️ 分配模块标签</button>
+    <button class="btn btn-export" onclick="exportWord()" id="exportBtn" disabled>📥 导出 Word</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th class="check-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" title="全选/取消"></th>
+          <th>产品名</th>
+          <th>型号</th>
+          <th>参数</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="4" class="empty-state">请选择一个产品分类开始</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 模块标签面板 -->
+  <div class="module-panel" id="modulePanel">
+    <h3>🏷️ 模块标签分配</h3>
+    <div id="moduleItems"></div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn btn-outline" onclick="applyModuleToAll()">应用到所有选中</button>
+      <button class="btn btn-primary" onclick="hideModulePanel()">✅ 确认</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p style="font-weight:600;color:#64748b">神奇阿标 — God Biao v2.0</p>
+    <p>作者：<a href="https://github.com/hello-fengsir" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:600">峰Sir</a></p>
+  </div>
+</div>
+
+<script>
+const PRESET_MODULES = ['网络安全防护','终端安全接入','运维管理与审计','虚拟化与超融合','SD-WAN组网','数据安全'];
+let allProducts = [];
+let selectedProducts = {};
+let moduleTags = {};  // product_id → module_tag
+
+// 加载分类
+async function loadCategories() {
+    const resp = await fetch('/api/categories');
+    const data = await resp.json();
+    const sel = document.getElementById('categorySelect');
+    data.categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
+    });
+}
+
+// 分类变更
+async function onCategoryChange() {
+    const cat = document.getElementById('categorySelect').value;
+    if (!cat) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="empty-state">请选择一个产品分类开始</td></tr>'; return; }
+    const resp = await fetch(`/api/products?category=${encodeURIComponent(cat)}`);
+    const data = await resp.json();
+    allProducts = data.products;
+    selectedProducts = {};
+    moduleTags = {};
+    renderTable(allProducts);
+    updateUI();
+}
+
+// 渲染表格
+function renderTable(products) {
+    const tbody = document.getElementById('tableBody');
+    if (!products.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">该分类暂无产品数据</td></tr>';
+        return;
+    }
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td class="check-cell"><input type="checkbox" value="${p.id}" ${selectedProducts[p.id]?'checked':''} onchange="toggleProduct(${p.id}, this.checked)"></td>
+            <td>${p.name}</td>
+            <td class="model-cell">${p.model}</td>
+            <td class="specs-cell">${p.specs}</td>
+        </tr>
+    `).join('');
+}
+
+// 筛选
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allProducts.filter(p => 
+        p.model.toLowerCase().includes(q) || p.specs.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+}
+
+// 全选
+function toggleSelectAll() {
+    const checked = document.getElementById('selectAll').checked;
+    document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb => {
+        const id = parseInt(cb.value);
+        if (checked) selectedProducts[id] = true; else delete selectedProducts[id];
+        cb.checked = checked;
+    });
+    updateUI();
+}
+
+function toggleProduct(id, checked) {
+    if (checked) selectedProducts[id] = true; else delete selectedProducts[id];
+    updateUI();
+}
+
+function updateUI() {
+    const count = Object.keys(selectedProducts).length;
+    document.getElementById('countLabel').textContent = `已选 ${count} 个产品`;
+    document.getElementById('tagBtn').disabled = count === 0;
+    document.getElementById('exportBtn').disabled = count === 0;
+}
+
+// 模块标签面板
+function showModulePanel() {
+    const panel = document.getElementById('modulePanel');
+    const itemsDiv = document.getElementById('moduleItems');
+    const selected = Object.keys(selectedProducts).map(Number);
+    
+    itemsDiv.innerHTML = selected.map(id => {
+        const p = allProducts.find(x => x.id === id);
+        if (!p) return '';
+        const tag = moduleTags[id] || '';
+        const presetOpts = PRESET_MODULES.map(m => `<option value="${m}" ${tag===m?'selected':''}>${m}</option>`).join('');
+        const customChecked = tag && !PRESET_MODULES.includes(tag) ? 'selected' : '';
+        return `<div class="module-item">
+            <span class="prod-name">${p.name} — ${p.model}</span>
+            <select class="module-select" data-pid="${id}" onchange="setModuleTag(${id}, this.value)">
+                <option value="">-- 选择模块 --</option>
+                ${presetOpts}
+                ${customChecked ? `<option value="${tag}" selected>${tag}</option>` : ''}
+            </select>
+            <input class="custom-input" placeholder="或自定义模块名..." data-pid="${id}" 
+                onchange="setModuleTag(${id}, this.value)" value="${customChecked ? tag : ''}">
+        </div>`;
+    }).join('');
+    
+    panel.style.display = 'block';
+}
+
+function hideModulePanel() {
+    document.getElementById('modulePanel').style.display = 'none';
+}
+
+function setModuleTag(id, tag) {
+    if (tag) moduleTags[id] = tag; else delete moduleTags[id];
+    // 同步更新同行的另一个输入
+    const selects = document.querySelectorAll(`[data-pid="${id}"]`);
+    selects.forEach(el => { if (el.tagName === 'SELECT') el.value = tag; else el.value = tag; });
+}
+
+function applyModuleToAll() {
+    const first = document.querySelector('#moduleItems select')?.value || 
+                  document.querySelector('#moduleItems input')?.value;
+    if (!first) return;
+    Object.keys(selectedProducts).forEach(id => {
+        setModuleTag(parseInt(id), first);
+    });
+    showModulePanel(); // refresh
+}
+
+// 导出 Word
+async function exportWord() {
+    const btn = document.getElementById('exportBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ 生成中...';
+    
+    const items = Object.keys(selectedProducts).map(id => ({
+        product_id: parseInt(id),
+        module_tag: moduleTags[parseInt(id)] || '未分类'
+    }));
+    
+    try {
+        const resp = await fetch('/api/export-word', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({items})
+        });
+        if (!resp.ok) {
+            const err = await resp.json();
+            alert('导出失败: ' + (err.error || resp.statusText));
+            return;
+        }
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '投标参数表.docx';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch(e) {
+        alert('导出失败: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📥 导出 Word';
+    }
+}
+
+// Init
+loadCategories();
+</script>
+</body>
+</html>

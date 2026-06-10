@@ -11,13 +11,14 @@ import glob
 from datetime import datetime, timedelta
 
 from fastapi import FastAPI, File, Form, UploadFile, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from config import BASE_DIR, UPLOAD_DIR, DB_PATH, MODEL_PRESETS
 from parser import parse_file
 from llm_client import compare_bid, evaluate_format, extract_key_info, test_api_key
+from models import get_db, init_product_tables
 
 from starlette.templating import Jinja2Templates as StarletteJinja2
 
@@ -425,6 +426,99 @@ async def result_page(request: Request, job_id: str):
             "fmt_items": fmt_items,
             "key_info": key_info,
         }))
+
+
+# ── 制标模块 API ──
+
+from io import BytesIO
+from collections import defaultdict
+
+@app.get("/bidding", response_class=HTMLResponse)
+def bidding_page(request: Request):
+    return templates.TemplateResponse(request, "bidding.html", {})
+
+@app.get("/api/categories")
+def api_categories():
+    """返回所有产品分类"""
+    with get_db() as db:
+        init_product_tables()
+        rows = db.execute("SELECT DISTINCT category FROM products ORDER BY category").fetchall()
+        return {"categories": [r["category"] for r in rows]}
+
+@app.get("/api/products")
+def api_products(category: str = ""):
+    """返回指定分类下的产品列表"""
+    with get_db() as db:
+        init_product_tables()
+        if category:
+            rows = db.execute(
+                "SELECT id, category, name, model, specs, notes FROM products WHERE category=? ORDER BY name, model",
+                (category,)
+            ).fetchall()
+        else:
+            rows = db.execute(
+                "SELECT id, category, name, model, specs, notes FROM products ORDER BY category, name, model"
+            ).fetchall()
+        return {"products": [dict(r) for r in rows]}
+
+@app.post("/api/export-word")
+async def export_word(data: dict):
+    """导出选中产品为 Word 表格，按模块标签分组"""
+    items = data.get("items", [])
+    if not items:
+        return JSONResponse({"error": "未选择产品"}, status_code=400)
+
+    product_ids = [it["product_id"] for it in items]
+    module_map = {it["product_id"]: it.get("module_tag", "未分类") for it in items}
+
+    with get_db() as db:
+        placeholders = ",".join("?" * len(product_ids))
+        rows = db.execute(
+            f"SELECT * FROM products WHERE id IN ({placeholders}) ORDER BY category, name, model",
+            product_ids
+        ).fetchall()
+
+    try:
+        from docx import Document
+    except ImportError:
+        return JSONResponse({"error": "python-docx 未安装"}, status_code=500)
+
+    doc = Document()
+    doc.add_heading("投标产品参数表", level=1)
+    doc.add_paragraph(f"导出时间：{datetime.now().strftime('%Y-%m-%d %H:%M')}")
+
+    groups = defaultdict(lambda: defaultdict(list))
+    for r in rows:
+        module = module_map.get(r["id"], "未分类")
+        groups[module][r["category"]].append(r)
+
+    for module, cats in groups.items():
+        doc.add_heading(f"📦 {module}", level=2)
+        for cat, cat_items in cats.items():
+            doc.add_heading(cat, level=3)
+            table = doc.add_table(rows=1, cols=4, style="Table Grid")
+            hdr = table.rows[0].cells
+            hdr[0].text = "产品名"
+            hdr[1].text = "型号"
+            hdr[2].text = "参数"
+            hdr[3].text = "备注"
+            for item in cat_items:
+                row_cells = table.add_row().cells
+                row_cells[0].text = item["name"]
+                row_cells[1].text = item["model"]
+                row_cells[2].text = item["specs"]
+                row_cells[3].text = item["notes"] or ""
+
+    buf = BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    from urllib.parse import quote
+    filename = quote("投标参数表.docx")
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}
+    )
 
 
 if __name__ == "__main__":
