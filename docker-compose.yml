@@ -9,5 +9,13 @@ services:
       - LLM_MODEL=${LLM_MODEL:-gpt-4o}
     volumes:
       - ./uploads:/app/uploads
+      - ./app.py:/app/app.py:ro
+      - ./models.py:/app/models.py:ro
+      - ./bid_api.py:/app/bid_api.py:ro
+      - ./config.py:/app/config.py:ro
+      - ./parser.py:/app/parser.py:ro
+      - ./llm_client.py:/app/llm_client.py:ro
+      - ./templates:/app/templates:ro
+      - ./static:/app/static:ro
       - ./godbiao.db:/app/godbiao.db
     restart: unless-stopped

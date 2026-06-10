@@ -8,290 +8,977 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh}
 
-/* Sidebar */
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:120px;background:#1e293b;display:flex;flex-direction:column;padding-top:32px;z-index:50;box-shadow:2px 0 12px rgba(0,0,0,.1)}
-.sidebar-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px;color:#94a3b8;text-decoration:none;font-size:1.05em;font-weight:700;transition:all .2s;border-left:3px solid transparent;margin:4px 0}
-.sidebar-item:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
-.sidebar-item.active{background:rgba(59,130,246,.15);color:#fff;border-left-color:#3b82f6}
-.sidebar-icon{font-size:1.6em}
-.main-content{margin-left:120px}
+/* Sidebar — 与评标完全一致 */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:160px;background:#fff;display:flex;flex-direction:column;z-index:50;border-right:1px solid #e2e8f0}
+.sidebar-brand{display:flex;flex-direction:column;align-items:center;padding:30px 16px 24px;border-bottom:1px solid #f1f5f9;margin-bottom:4px}
+.sidebar-brand .brand-icon{width:44px;height:44px;background:#3b82f6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3em;margin-bottom:8px;color:#fff}
+.sidebar-brand .brand-name{font-size:1.1em;font-weight:800;color:#1e293b;letter-spacing:.03em}
+.sidebar-brand .brand-sub{font-size:.68em;color:#94a3b8;margin-top:3px;letter-spacing:.06em;font-weight:500}
+.sidebar-nav{flex:1;display:flex;flex-direction:column;padding:10px 12px;gap:4px}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 14px;color:#64748b;text-decoration:none;font-size:1em;font-weight:600;border-radius:8px;transition:all .15s}
+.sidebar-item:hover{background:#f1f5f9;color:#1e293b}
+.sidebar-item.active{background:#eff6ff;color:#2563eb;font-weight:700}
+.sidebar-icon{font-size:1.2em;width:22px;text-align:center;flex-shrink:0;opacity:.7}
+.sidebar-item.active .sidebar-icon{opacity:1}
+.sidebar-footer{padding:12px 8px;border-top:1px solid #f1f5f9;text-align:center;line-height:1.6}
+.sidebar-footer .row{display:flex;align-items:center;justify-content:center;gap:4px}
+.sidebar-footer .author{font-size:.68em;color:#3b82f6;text-decoration:none;font-weight:600;white-space:nowrap}
+.sidebar-footer .author:hover{color:#2563eb}
+.sidebar-footer .ver{font-size:.65em;color:#cbd5e1;font-weight:500;white-space:nowrap}
+.sidebar-footer .disclaimer{font-size:.58em;color:#cbd5e1;margin-top:4px}
+.main-content{margin-left:160px}
 
-.container{max-width:1200px;margin:0 auto;padding:24px 20px}
-.header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #e2e8f0;margin-bottom:24px}
-.header h1{font-size:1.4em;font-weight:800;color:#1e40af}
+/* Header — 与评标一致 */
+.header{text-align:center;padding:36px 20px 32px;background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%)}
+.header .logo{font-size:1.5em;font-weight:800;color:#1e40af;margin-bottom:4px;letter-spacing:-.02em}
+.header .logo span{color:#3b82f6}
 
-.controls{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.controls select,.controls input{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:.9em;background:#fff}
-.controls select{min-width:180px}
+/* Container */
+.container{max-width:1200px;margin:0 auto;padding:0 20px 24px}
 
-.table-wrap{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px}
-table{width:100%;border-collapse:collapse}
-th{background:#f1f5f9;padding:10px 12px;text-align:left;font-size:.82em;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0}
-td{padding:8px 12px;font-size:.85em;border-bottom:1px solid #f1f5f9;vertical-align:top}
-tr:hover{background:#f8fafc}
-.specs-cell{max-width:400px;word-break:break-all;line-height:1.5;color:#475569}
-.model-cell{font-weight:600;white-space:nowrap}
-.check-cell{width:40px;text-align:center}
+/* Card */
+.card{background:#fff;border-radius:14px;padding:0;margin-bottom:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.hidden{display:none}
 
-.module-panel{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px;display:none}
-.module-panel h3{font-size:1em;margin-bottom:12px;color:#1e293b}
-.module-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:.85em}
-.module-item .prod-name{flex:1;color:#475569}
-.module-item select{min-width:160px}
-.module-item .custom-input{min-width:140px;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:.82em}
+/* Left panel inside card */
+.card-body{display:flex}
+.left-panel{width:200px;background:#f8fafc;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;flex-shrink:0}
+.left-panel .cat-select{padding:10px 12px 8px;border-bottom:1px solid #e2e8f0}
+.left-panel .cat-select label{font-size:.68em;color:#94a3b8;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.left-panel .cat-select select{width:100%;padding:7px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;font-size:.82em;outline:none;cursor:pointer;transition:border-color .2s}
+.left-panel .cat-select select:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.left-panel .line-list{flex:1;overflow-y:auto;padding:8px 10px}
+.line-item{padding:8px 12px;margin:1px 0;border-radius:8px;cursor:pointer;font-size:.82em;color:#64748b;display:flex;justify-content:space-between;align-items:center;transition:all .12s}
+.line-item:hover{background:#eff6ff;color:#1e293b}
+.line-item.active{background:#eff6ff;color:#2563eb;font-weight:600}
+.line-item .count{font-size:.7em;color:#94a3b8;background:#fff;padding:2px 8px;border-radius:10px;font-weight:500}
+.line-item.active .count{background:#dbeafe;color:#2563eb}
+.line-item .line-actions{display:none;gap:2px;margin-left:4px}
+.line-item:hover .line-actions,.line-item.active .line-actions{display:flex}
+.line-item .line-act{width:22px;height:22px;border:none;border-radius:4px;cursor:pointer;font-size:.65em;display:inline-flex;align-items:center;justify-content:center;transition:all .12s;background:transparent;color:#94a3b8}
+.line-item .line-act:hover{background:#e2e8f0;color:#1e293b}
+.line-item .line-act.del:hover{background:#fef2f2;color:#dc2626}
+.line-add-btn{display:block;width:100%;padding:6px;margin-top:4px;border:1px dashed #e2e8f0;border-radius:8px;background:transparent;color:#94a3b8;font-size:.75em;cursor:pointer;transition:all .12s}
+.line-add-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.empty-hint{padding:30px 14px;text-align:center;color:#cbd5e1;font-size:.78em}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:8px;font-size:.9em;font-weight:600;cursor:pointer;transition:all .2s}
+/* Right panel */
+.right-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.toolbar{padding:8px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff}
+.toolbar .line-name{font-size:.9em;color:#1e293b;font-weight:600}
+.toolbar .line-name .highlight{color:#2563eb}
+.toolbar .hint{font-size:.78em;color:#94a3b8}
+.toolbar .actions{display:flex;gap:6px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 14px;border:none;border-radius:6px;font-size:.64em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-outline{background:#fff;color:#475569;border:1px solid #e2e8f0}
+.btn-outline:hover{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
 .btn-primary{background:#3b82f6;color:#fff}
-.btn-primary:hover{background:#2563eb}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-outline{background:#fff;color:#3b82f6;border:1px solid #3b82f6}
-.btn-outline:hover{background:#eff6ff}
-.btn-export{background:#22c55e;color:#fff;font-size:1em;padding:12px 32px}
-.btn-export:hover{background:#16a34a}
+.btn-primary:hover{background:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-blue:hover{background:#1d4ed8}
+.btn-green{background:#22c55e;color:#fff}
+.btn-green:hover{background:#16a34a}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 
-.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.selected-count{font-size:.85em;color:#64748b;padding:6px 12px;background:#f1f5f9;border-radius:6px}
+/* Table */
+.table-wrap{flex:1;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.75em}
+thead{position:sticky;top:0;z-index:5}
+th{background:#f8fafc;padding:6px 8px;text-align:left;font-weight:700;color:#64748b;font-size:.75em;border-bottom:2px solid #e2e8f0}
+td{padding:3px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top;line-height:1.3}
+tr:hover{background:#f8fafc}
+.check-col{width:30px;text-align:center}
+.num-col{width:32px;color:#94a3b8;font-size:.78em}
+.action-col{width:46px;text-align:center}
+.action-btn{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;font-size:.78em;background:transparent;color:#cbd5e1;opacity:0;transition:all .15s}
+tr:hover .action-btn{opacity:1}
+.action-btn:hover{background:#f1f5f9;color:#64748b}
+.action-btn.del:hover{background:#fef2f2;color:#ef4444}
 
-.footer{text-align:center;padding:40px 20px;color:#94a3b8;font-size:.75em;line-height:1.8;border-top:1px solid #e2e8f0;margin-top:40px}
-.empty-state{text-align:center;padding:60px 20px;color:#94a3b8}
+.param-val{color:#475569;max-width:400px;word-break:break-all}
+.param-name{color:#1e293b}
+.type-badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.72em;font-weight:600;margin-left:7px;vertical-align:2px}
+.type-hw{background:#eff6ff;color:#2563eb}
+.type-sw{background:#f5f3ff;color:#7c3aed}
+.separator td{background:#f8fafc!important;text-align:center;padding:3px}
+.separator span{font-size:.68em;color:#94a3b8;padding:3px 12px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;font-weight:500}
+
+/* Model section */
+.model-section{border-top:1px solid #e2e8f0;flex-shrink:0;background:#fff}
+.model-header{padding:11px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:.85em;color:#64748b;user-select:none;font-weight:600}
+.model-header:hover{background:#f8fafc}
+.model-header .arrow{transition:transform .2s;font-size:.7em}
+.model-header .arrow.open{transform:rotate(90deg)}
+.model-body{padding:8px 20px 12px;border-top:1px solid #f1f5f9}
+.model-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.82em}
+.model-item:last-child{border-bottom:none}
+.model-info{flex:1;min-width:0}
+.model-info .mname{color:#1e293b;font-weight:500}
+.model-info .mdesc{color:#94a3b8;font-size:.9em;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Bottom bar */
+.bottom-bar{padding:6px 16px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-size:.75em;color:#94a3b8;flex-shrink:0;background:#fff}
+.bottom-bar .select-actions{display:flex;gap:10px}
+.bottom-bar .select-actions button{background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.85em;font-weight:500}
+.bottom-bar .select-actions button:hover{color:#3b82f6}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:100;justify-content:center;align-items:flex-start;padding-top:60px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.modal h3{font-size:1.05em;font-weight:700;color:#1e293b;margin-bottom:16px}
+.modal label{display:block;font-size:.85em;color:#475569;margin-bottom:4px;margin-top:14px;font-weight:500}
+.modal input,.modal textarea,.modal select{width:100%;padding:9px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;font-size:.9em;outline:none;font-family:inherit;transition:border-color .2s}
+.modal textarea{resize:vertical;min-height:70px}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1);background:#fff}
+.modal .radio-group{display:flex;gap:8px}
+.modal .radio-group label{flex:1;padding:10px;border-radius:8px;text-align:center;cursor:pointer;font-size:.85em;border:1px solid #e2e8f0;color:#64748b;margin:0;background:#fff}
+.modal .radio-group label:has(input:checked){border-color:#3b82f6;color:#2563eb;background:#eff6ff}
+.modal .radio-group input[type=radio]{display:none}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions button{flex:1;padding:10px;border-radius:8px;border:none;font-size:.88em;font-weight:600;cursor:pointer}
+
+/* Preview modal */
+.preview-modal{max-width:700px}
+
+/* Upload modal */
+.upload-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc}
+.upload-zone:hover,.upload-zone.dragover{border-color:#3b82f6;background:#eff6ff}
+.upload-zone .upload-icon{font-size:2.4em;margin-bottom:10px}
+.upload-zone .upload-text{font-size:.88em;color:#64748b;font-weight:500}
+.upload-zone .upload-sub{font-size:.75em;color:#94a3b8;margin-top:6px}
+.upload-zone input[type=file]{display:none}
+.file-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f1f5f9;border-radius:10px;margin-top:14px}
+.file-card .file-icon{font-size:1.5em}
+.file-card .file-info{flex:1;min-width:0}
+.file-card .file-name{font-size:.85em;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-card .file-size{font-size:.72em;color:#94a3b8;margin-top:3px}
+.file-card .file-remove{width:28px;height:28px;border:none;border-radius:6px;background:#fef2f2;color:#ef4444;cursor:pointer;font-size:.85em;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.file-card .file-remove:hover{background:#fee2e2}
+.full-width{width:100%}
+
+.preview-table{width:100%;border-collapse:collapse;font-size:.8em;margin-top:12px}
+.preview-table th{background:#f8fafc;padding:8px 12px;text-align:left;color:#64748b;border-bottom:1px solid #e2e8f0;font-weight:600}
+.preview-table td{padding:7px 12px;border-bottom:1px solid #f1f5f9;color:#1e293b}
+
+/* Toast */
+.toast{position:fixed;top:16px;right:16px;z-index:200;padding:10px 18px;border-radius:10px;font-size:.85em;font-weight:600;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.toast.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:block}
+.toast.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;display:block}
+
+input[type=checkbox]{accent-color:#3b82f6;width:16px;height:16px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#cbd5e1}
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-  <a href="/bidding" class="sidebar-item active">
-    <span class="sidebar-icon">📝</span>
-    <span>制标</span>
-  </a>
-  <a href="/" class="sidebar-item">
-    <span class="sidebar-icon">🔍</span>
-    <span>评标</span>
-  </a>
-</div>
-
-<div class="main-content">
-<div class="container">
-  <div class="header">
-    <h1>📝 制标 — 产品参数配置</h1>
-  </div>
-
-  <div class="controls">
-    <select id="categorySelect" onchange="onCategoryChange()">
-      <option value="">-- 选择产品分类 --</option>
-    </select>
-    <input type="text" id="searchInput" placeholder="搜索型号或参数..." oninput="filterTable()" style="min-width:200px">
-  </div>
-
-  <div class="toolbar">
-    <span class="selected-count" id="countLabel">已选 0 个产品</span>
-    <button class="btn btn-outline" onclick="showModulePanel()" id="tagBtn" disabled>🏷️ 分配模块标签</button>
-    <button class="btn btn-export" onclick="exportWord()" id="exportBtn" disabled>📥 导出 Word</button>
-  </div>
-
-  <div class="table-wrap">
-    <table id="productTable">
-      <thead>
-        <tr>
-          <th class="check-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" title="全选/取消"></th>
-          <th>产品名</th>
-          <th>型号</th>
-          <th>参数</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="4" class="empty-state">请选择一个产品分类开始</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- 模块标签面板 -->
-  <div class="module-panel" id="modulePanel">
-    <h3>🏷️ 模块标签分配</h3>
-    <div id="moduleItems"></div>
-    <div style="margin-top:12px;display:flex;gap:8px">
-      <button class="btn btn-outline" onclick="applyModuleToAll()">应用到所有选中</button>
-      <button class="btn btn-primary" onclick="hideModulePanel()">✅ 确认</button>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-name">神奇阿标</div>
+      <div class="brand-sub">GOD BIAO</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/bidding" class="sidebar-item active"><span class="sidebar-icon">📝</span><span>制标</span></a>
+      <a href="/" class="sidebar-item"><span class="sidebar-icon">🔍</span><span>评标</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="row">
+        <a href="https://github.com/hello-fengsir/godbiao" target="_blank" class="author"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:1px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>峰Sir</a>
+        <span class="ver">· v2.0</span>
+      </div>
+      <p class="disclaimer">仅供学习交流，禁止商业用途</p>
     </div>
   </div>
 
-  <div class="footer">
-    <p style="font-weight:600;color:#64748b">神奇阿标 — God Biao v2.0</p>
-    <p>作者：<a href="https://github.com/hello-fengsir" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:600">峰Sir</a></p>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <div class="logo">📋 制标<span> — 招投标技术参数</span></div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-body">
+          <!-- Left: Category + Product Line -->
+          <div class="left-panel">
+            <div class="cat-select">
+              <label>产品类别</label>
+              <div style="display:flex;gap:4px;align-items:center">
+                <select id="catSelect" onchange="onCatChange()" style="flex:1"><option value="0">-- 选择类别 --</option></select>
+                <span id="catActions" style="display:none;gap:2px">
+                  <button class="line-act" onclick="openEditCat()" title="编辑分类">✏️</button>
+                  <button class="line-act del" onclick="deleteCat()" title="删除分类">🗑️</button>
+                </span>
+              </div>
+              <button class="line-add-btn" onclick="openAddCat()">+ 新建分类</button>
+            </div>
+            <div class="line-list" id="lineList">
+              <div class="empty-hint">👆 先选择一个产品类别</div>
+            </div>
+          </div>
+
+          <!-- Right: Parameters -->
+          <div class="right-panel" id="rightPanel">
+            <div class="toolbar">
+              <div id="toolbarLeft">
+                <span class="hint">← 选择产品线开始编辑参数</span>
+              </div>
+              <div class="actions">
+                <button class="btn btn-outline" onclick="openUploadModal()">📥 导入参数</button>
+                <span id="toolbarActions" style="display:none;gap:6px">
+                  <button class="btn btn-outline" onclick="openAddParam()">+ 添加参数</button>
+                  <button class="btn btn-outline" onclick="generatePreview()">👁 预览</button>
+                  <button class="btn btn-green" onclick="downloadDocx()" id="exportBtn">📥 导出 Word</button>
+                </span>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="check-col"><input type="checkbox" id="selectAll" onchange="toggleAll()"></th>
+                    <th class="num-col">#</th>
+                    <th>参数名称</th>
+                    <th>参数要求/值</th>
+                    <th class="action-col">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <tr><td colspan="5" style="text-align:center;padding:80px 0;color:#475569">👈 左侧选择产品类别和产品线后开始编辑</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="model-section" id="modelSection" style="display:none">
+              <div class="model-header" onclick="toggleModels()">
+                <span>📦 型号 (<span id="modelCount">0</span>)</span>
+                <span class="arrow" id="modelArrow">▶</span>
+              </div>
+              <div class="model-body hidden" id="modelBody">
+                <button class="btn btn-outline" onclick="openAddModel()" style="margin-bottom:8px">+ 添加型号</button>
+                <div id="modelList"></div>
+              </div>
+            </div>
+
+            <div class="bottom-bar" id="bottomBar" style="display:none">
+              <span>共 <span id="totalCount">0</span> 项参数，已选 <span id="selCount">0</span> 项</span>
+              <div class="select-actions">
+                <button onclick="checkAll()">全选</button>
+                <button onclick="uncheckAll()">取消全选</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal">
+    <h3>📤 上传 Excel 导入参数</h3>
+    <p style="font-size:.82em;color:#94a3b8;margin-bottom:14px">选择 .xlsx 或 .xls 文件，批量导入技术参数</p>
+    <div class="upload-zone" id="uploadZone" onclick="onUploadZoneClick()" ondragover="onUploadDragOver(event)" ondragleave="onUploadDragLeave()" ondrop="onUploadDrop(event)">
+      <div class="upload-icon">📁</div>
+      <div class="upload-text">点击选择文件或拖拽到此处</div>
+      <div class="upload-sub">支持 .xlsx / .xls 格式</div>
+      <input type="file" accept=".xlsx,.xls" id="uploadFileInput" onchange="onFileSelected()">
+    </div>
+    <div class="file-card" id="fileCard" style="display:none">
+      <span class="file-icon">📄</span>
+      <div class="file-info">
+        <div class="file-name" id="uploadFileName"></div>
+        <div class="file-size" id="uploadFileSize"></div>
+      </div>
+      <button class="file-remove" onclick="clearUploadFile()">✕</button>
+    </div>
+    <div class="modal-actions">
+      <button onclick="closeUploadModal()" style="background:#f1f5f9;color:#64748b;font-weight:600">取消</button>
+      <button onclick="doUpload()" id="uploadBtn" style="background:#3b82f6;color:#fff;font-weight:600">⬆️ 确认上传</button>
+    </div>
   </div>
 </div>
 
+<!-- Add/Edit Category Modal -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <h3 id="catModalTitle">➕ 新建分类</h3>
+    <label>分类名称</label>
+    <input type="text" id="catName" placeholder="例如：网络安全">
+    <label>排序</label>
+    <input type="number" id="catOrder" value="0">
+    <div class="modal-actions">
+      <button onclick="closeCatModal()" style="background:#f1f5f9;color:#64748b;font-weight:600">取消</button>
+      <button onclick="saveCat()" style="background:#3b82f6;color:#fff;font-weight:600">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Product Line Modal -->
+<div class="modal-overlay" id="lineModal">
+  <div class="modal">
+    <h3 id="lineModalTitle">➕ 新建产品线</h3>
+    <label>产品线名称</label>
+    <input type="text" id="lineName" placeholder="例如：下一代防火墙">
+    <label>排序</label>
+    <input type="number" id="lineOrder" value="0">
+    <div class="modal-actions">
+      <button onclick="closeLineModal()" style="background:#f1f5f9;color:#64748b;font-weight:600">取消</button>
+      <button onclick="saveLine()" style="background:#3b82f6;color:#fff;font-weight:600">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Param Modal -->
+<div class="modal-overlay" id="paramModal">
+  <div class="modal">
+    <h3 id="paramModalTitle">➕ 添加参数</h3>
+    <label>参数类型</label>
+    <div class="radio-group">
+      <label><input type="radio" name="ptype" value="hardware" onchange="paramForm.param_type='hardware'">🔧 硬件</label>
+      <label><input type="radio" name="ptype" value="software" checked onchange="paramForm.param_type='software'">💻 软件</label>
+    </div>
+    <label>参数名称</label>
+    <input type="text" id="paramName" placeholder="例如：CPU型号">
+    <label>参数要求/值</label>
+    <textarea id="paramValue" placeholder="例如：≥ Intel Xeon Gold 6430 32核 2.1GHz" rows="3"></textarea>
+    <label>排序</label>
+    <input type="number" id="paramOrder" value="0">
+    <div class="modal-actions">
+      <button onclick="closeParamModal()" style="background:#f1f5f9;color:#64748b;font-weight:600">取消</button>
+      <button onclick="saveParam()" style="background:#3b82f6;color:#fff;font-weight:600">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Model Modal -->
+<div class="modal-overlay" id="modelModal">
+  <div class="modal">
+    <h3 id="modelModalTitle">➕ 添加型号</h3>
+    <label>型号名称</label>
+    <input type="text" id="modelName" placeholder="例如：AF-1000-FH1600B">
+    <label>规格说明</label>
+    <textarea id="modelDesc" placeholder="例如：2U机架式，16个千兆电口..." rows="2"></textarea>
+    <label>排序</label>
+    <input type="number" id="modelOrder" value="0">
+    <div class="modal-actions">
+      <button onclick="closeModelModal()" style="background:#f1f5f9;color:#64748b;font-weight:600">取消</button>
+      <button onclick="saveModel()" style="background:#3b82f6;color:#fff;font-weight:600">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal preview-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="margin:0">📄 技术参数预览</h3>
+      <button onclick="closePreview()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:1.2em">&times;</button>
+    </div>
+    <div id="previewInfo" style="text-align:center;margin-bottom:10px"></div>
+    <div id="previewTable"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+      <span style="font-size:.75em;color:#64748b">共 <span id="previewCount">0</span> 项参数</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-outline" onclick="copyPreview()">📋 复制</button>
+        <button class="btn btn-green" onclick="downloadDocx();closePreview()">📥 导出 Word</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-const PRESET_MODULES = ['网络安全防护','终端安全接入','运维管理与审计','虚拟化与超融合','SD-WAN组网','数据安全'];
-let allProducts = [];
-let selectedProducts = {};
-let moduleTags = {};  // product_id → module_tag
+const API = '/api/bid';
+let categories = [], lines = [], params = [], models = [];
+let selectedCatId = 0, selectedLineId = 0, selectedLineName = '';
+let checkedIds = new Set();
+let editingParamId = null, editingModelId = null;
+let modelsExpanded = false;
 
-// 加载分类
-async function loadCategories() {
-    const resp = await fetch('/api/categories');
-    const data = await resp.json();
-    const sel = document.getElementById('categorySelect');
-    data.categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
-        sel.appendChild(opt);
-    });
+const paramForm = { param_type: 'software', param_name: '', param_value: '', sort_order: 0 };
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  setTimeout(() => t.className = 'toast', 2500);
 }
 
-// 分类变更
-async function onCategoryChange() {
-    const cat = document.getElementById('categorySelect').value;
-    if (!cat) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="empty-state">请选择一个产品分类开始</td></tr>'; return; }
-    const resp = await fetch(`/api/products?category=${encodeURIComponent(cat)}`);
-    const data = await resp.json();
-    allProducts = data.products;
-    selectedProducts = {};
-    moduleTags = {};
-    renderTable(allProducts);
-    updateUI();
+// ===== Init =====
+async function init() {
+  const resp = await fetch(API + '/categories');
+  categories = await resp.json();
+  const sel = document.getElementById('catSelect');
+  categories.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+  sel.addEventListener('change', () => {
+    document.getElementById('catActions').style.display = sel.value !== '0' ? 'flex' : 'none';
+  });
+}
+init();
+
+// ===== Category → Lines =====
+async function onCatChange() {
+  selectedCatId = parseInt(document.getElementById('catSelect').value) || 0;
+  selectedLineId = 0; params = []; checkedIds.clear();
+  document.getElementById('lineList').innerHTML = selectedCatId ? '' : '<div class="empty-hint">👆 先选择一个产品类别</div>';
+  updateRight();
+  if (!selectedCatId) return;
+  
+  const resp = await fetch(API + '/product-lines?category_id=' + selectedCatId);
+  lines = await resp.json();
+  const list = document.getElementById('lineList');
+  if (!lines.length) { list.innerHTML = '<div class="empty-hint">该类别下暂无产品线</div>'; }
+  else { list.innerHTML = lines.map(l => `
+    <div class="line-item" onclick="selectLine(${l.id})" id="line-${l.id}">
+      <span>${l.name}</span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <span class="line-actions" onclick="event.stopPropagation()">
+          <button class="line-act" onclick="openEditLine(${l.id})" title="编辑">✏️</button>
+          <button class="line-act del" onclick="deleteLine(${l.id})" title="删除">🗑️</button>
+        </span>
+        <span class="count">${l.param_count||0}</span>
+      </span>
+    </div>`).join(''); }
+  list.innerHTML += '<button class="line-add-btn" onclick="openAddLine()">+ 新建产品线</button>';
 }
 
-// 渲染表格
-function renderTable(products) {
-    const tbody = document.getElementById('tableBody');
-    if (!products.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">该分类暂无产品数据</td></tr>';
-        return;
+// ===== Select Line =====
+async function selectLine(id) {
+  selectedLineId = id;
+  checkedIds.clear();
+  document.querySelectorAll('.line-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('line-' + id)?.classList.add('active');
+  
+  const line = lines.find(l => l.id === id);
+  selectedLineName = line?.name || '';
+  
+  const [pr, mr] = await Promise.all([
+    fetch(API + '/parameters?line_id=' + id).then(r => r.json()),
+    fetch(API + '/product-models?line_id=' + id).then(r => r.json())
+  ]);
+  params = Array.isArray(pr) ? pr : [];
+  params.sort((a,b) => {
+    if (a.param_type !== b.param_type) return a.param_type === 'hardware' ? -1 : 1;
+    return (a.sort_order||0) - (b.sort_order||0);
+  });
+  models = Array.isArray(mr) ? mr : [];
+  
+  updateRight();
+  renderTable();
+  renderModels();
+}
+
+// ===== Render =====
+function updateRight() {
+  const hasLine = !!selectedLineId;
+  document.getElementById('toolbarLeft').innerHTML = hasLine
+    ? `产品线：<span class="highlight">${selectedLineName}</span>`
+    : '<span class="hint">← 选择产品线开始编辑参数</span>';
+  const ta = document.getElementById('toolbarActions'); ta.style.display = hasLine ? 'inline-flex' : 'none';
+  document.getElementById('modelSection').style.display = hasLine ? '' : 'none';
+  document.getElementById('bottomBar').style.display = hasLine && params.length ? '' : 'none';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  if (!selectedLineId || !params.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:80px 0;color:#475569">${selectedLineId ? '📭 暂无参数，上传 Excel 或点击「添加参数」' : '👈 左侧选择产品类别和产品线后开始编辑'}</td></tr>`;
+    document.getElementById('bottomBar').style.display = 'none';
+    return;
+  }
+  
+  let html = '', lastType = '';
+  params.forEach((p, idx) => {
+    const typeChanged = idx > 0 && p.param_type !== lastType;
+    lastType = p.param_type;
+    
+    if (typeChanged) {
+      const label = p.param_type === 'hardware' ? '🔧 硬件参数' : '💻 软件功能参数';
+      html += `<tr class="separator"><td colspan="5"><span>${label}</span></td></tr>`;
     }
-    tbody.innerHTML = products.map(p => `
-        <tr>
-            <td class="check-cell"><input type="checkbox" value="${p.id}" ${selectedProducts[p.id]?'checked':''} onchange="toggleProduct(${p.id}, this.checked)"></td>
-            <td>${p.name}</td>
-            <td class="model-cell">${p.model}</td>
-            <td class="specs-cell">${p.specs}</td>
-        </tr>
-    `).join('');
-}
-
-// 筛选
-function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = allProducts.filter(p => 
-        p.model.toLowerCase().includes(q) || p.specs.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
-    );
-    renderTable(filtered);
-}
-
-// 全选
-function toggleSelectAll() {
-    const checked = document.getElementById('selectAll').checked;
-    document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb => {
-        const id = parseInt(cb.value);
-        if (checked) selectedProducts[id] = true; else delete selectedProducts[id];
-        cb.checked = checked;
-    });
-    updateUI();
-}
-
-function toggleProduct(id, checked) {
-    if (checked) selectedProducts[id] = true; else delete selectedProducts[id];
-    updateUI();
-}
-
-function updateUI() {
-    const count = Object.keys(selectedProducts).length;
-    document.getElementById('countLabel').textContent = `已选 ${count} 个产品`;
-    document.getElementById('tagBtn').disabled = count === 0;
-    document.getElementById('exportBtn').disabled = count === 0;
-}
-
-// 模块标签面板
-function showModulePanel() {
-    const panel = document.getElementById('modulePanel');
-    const itemsDiv = document.getElementById('moduleItems');
-    const selected = Object.keys(selectedProducts).map(Number);
     
-    itemsDiv.innerHTML = selected.map(id => {
-        const p = allProducts.find(x => x.id === id);
-        if (!p) return '';
-        const tag = moduleTags[id] || '';
-        const presetOpts = PRESET_MODULES.map(m => `<option value="${m}" ${tag===m?'selected':''}>${m}</option>`).join('');
-        const customChecked = tag && !PRESET_MODULES.includes(tag) ? 'selected' : '';
-        return `<div class="module-item">
-            <span class="prod-name">${p.name} — ${p.model}</span>
-            <select class="module-select" data-pid="${id}" onchange="setModuleTag(${id}, this.value)">
-                <option value="">-- 选择模块 --</option>
-                ${presetOpts}
-                ${customChecked ? `<option value="${tag}" selected>${tag}</option>` : ''}
-            </select>
-            <input class="custom-input" placeholder="或自定义模块名..." data-pid="${id}" 
-                onchange="setModuleTag(${id}, this.value)" value="${customChecked ? tag : ''}">
-        </div>`;
-    }).join('');
+    const typeBadge = p.param_type === 'hardware'
+      ? '<span class="type-badge type-hw">硬件</span>'
+      : '<span class="type-badge type-sw">软件</span>';
+    const checked = checkedIds.has(p.id) ? 'checked' : '';
     
-    panel.style.display = 'block';
+    html += `<tr>
+      <td class="check-col"><input type="checkbox" ${checked} onchange="toggleCheck(${p.id})"></td>
+      <td class="num-col">${idx+1}</td>
+      <td class="param-name">${esc(p.param_name)}${typeBadge}</td>
+      <td class="param-val">${esc(p.param_value) || '—'}</td>
+      <td class="action-col">
+        <button class="action-btn" onclick="openEditParam(${p.id})" title="编辑">✏️</button>
+        <button class="action-btn del" onclick="deleteParam(${p.id})" title="删除">🗑️</button>
+      </td>
+    </tr>`;
+  });
+  
+  tbody.innerHTML = html;
+  document.getElementById('selectAll').checked = checkedIds.size === params.length;
+  document.getElementById('totalCount').textContent = params.length;
+  document.getElementById('selCount').textContent = checkedIds.size;
+  document.getElementById('bottomBar').style.display = '';
 }
 
-function hideModulePanel() {
-    document.getElementById('modulePanel').style.display = 'none';
+// ===== Models =====
+function renderModels() {
+  document.getElementById('modelCount').textContent = models.length;
+  const list = document.getElementById('modelList');
+  if (!models.length) { list.innerHTML = '<div style="color:#475569;font-size:.75em;padding:8px 0">暂无型号</div>'; return; }
+  list.innerHTML = models.map(m => `
+    <div class="model-item">
+      <div class="model-info">
+        <div class="mname">${esc(m.name)}</div>
+        ${m.description ? `<div class="mdesc">${esc(m.description)}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="action-btn" style="opacity:1" onclick="openEditModel(${m.id})" title="编辑">✏️</button>
+        <button class="action-btn del" style="opacity:1" onclick="deleteModel(${m.id})" title="删除">🗑️</button>
+      </div>
+    </div>`).join('');
 }
 
-function setModuleTag(id, tag) {
-    if (tag) moduleTags[id] = tag; else delete moduleTags[id];
-    // 同步更新同行的另一个输入
-    const selects = document.querySelectorAll(`[data-pid="${id}"]`);
-    selects.forEach(el => { if (el.tagName === 'SELECT') el.value = tag; else el.value = tag; });
+function toggleModels() {
+  modelsExpanded = !modelsExpanded;
+  document.getElementById('modelBody').classList.toggle('hidden', !modelsExpanded);
+  document.getElementById('modelArrow').classList.toggle('open', modelsExpanded);
 }
 
-function applyModuleToAll() {
-    const first = document.querySelector('#moduleItems select')?.value || 
-                  document.querySelector('#moduleItems input')?.value;
-    if (!first) return;
-    Object.keys(selectedProducts).forEach(id => {
-        setModuleTag(parseInt(id), first);
-    });
-    showModulePanel(); // refresh
+// ===== Check =====
+function toggleCheck(id) { checkedIds.has(id) ? checkedIds.delete(id) : checkedIds.add(id); updateCheckUI(); }
+function toggleAll() {
+  if (checkedIds.size === params.length) uncheckAll(); else checkAll();
+}
+function checkAll() { params.forEach(p => checkedIds.add(p.id)); renderTable(); }
+function uncheckAll() { checkedIds.clear(); renderTable(); }
+function updateCheckUI() {
+  document.getElementById('selectAll').checked = checkedIds.size === params.length;
+  document.getElementById('selCount').textContent = checkedIds.size;
 }
 
-// 导出 Word
-async function exportWord() {
-    const btn = document.getElementById('exportBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ 生成中...';
-    
-    const items = Object.keys(selectedProducts).map(id => ({
-        product_id: parseInt(id),
-        module_tag: moduleTags[parseInt(id)] || '未分类'
-    }));
-    
-    try {
-        const resp = await fetch('/api/export-word', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({items})
-        });
-        if (!resp.ok) {
-            const err = await resp.json();
-            alert('导出失败: ' + (err.error || resp.statusText));
-            return;
-        }
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '投标参数表.docx';
-        a.click();
-        URL.revokeObjectURL(url);
-    } catch(e) {
-        alert('导出失败: ' + e.message);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '📥 导出 Word';
+// ===== Param CRUD =====
+function openAddParam() {
+  editingParamId = null;
+  document.getElementById('paramModalTitle').textContent = '➕ 添加参数';
+  document.querySelector('input[name=ptype][value=software]').checked = true;
+  paramForm.param_type = 'software';
+  document.getElementById('paramName').value = '';
+  document.getElementById('paramValue').value = '';
+  document.getElementById('paramOrder').value = params.length + 1;
+  document.getElementById('paramModal').classList.add('show');
+}
+
+function openEditParam(id) {
+  const p = params.find(x => x.id === id);
+  if (!p) return;
+  editingParamId = id;
+  document.getElementById('paramModalTitle').textContent = '✏️ 编辑参数';
+  document.querySelector(`input[name=ptype][value=${p.param_type}]`).checked = true;
+  paramForm.param_type = p.param_type;
+  document.getElementById('paramName').value = p.param_name || '';
+  document.getElementById('paramValue').value = p.param_value || '';
+  document.getElementById('paramOrder').value = p.sort_order || 0;
+  document.getElementById('paramModal').classList.add('show');
+}
+
+function closeParamModal() { document.getElementById('paramModal').classList.remove('show'); }
+
+// ===== Category CRUD =====
+let editingCatId = null;
+
+function openAddCat() {
+  editingCatId = null;
+  document.getElementById('catModalTitle').textContent = '➕ 新建分类';
+  document.getElementById('catName').value = '';
+  document.getElementById('catOrder').value = categories.length + 1;
+  document.getElementById('catModal').classList.add('show');
+}
+
+function openEditCat() {
+  const c = categories.find(x => x.id === selectedCatId);
+  if (!c) return;
+  editingCatId = selectedCatId;
+  document.getElementById('catModalTitle').textContent = '✏️ 编辑分类';
+  document.getElementById('catName').value = c.name;
+  document.getElementById('catOrder').value = c.sort_order || 0;
+  document.getElementById('catModal').classList.add('show');
+}
+
+function closeCatModal() { document.getElementById('catModal').classList.remove('show'); }
+
+async function saveCat() {
+  const name = document.getElementById('catName').value.trim();
+  if (!name) return showToast('分类名称不能为空', 'error');
+  const sort_order = parseInt(document.getElementById('catOrder').value) || 0;
+  const method = editingCatId ? 'PUT' : 'POST';
+  const url = editingCatId ? API + '/categories/' + editingCatId : API + '/categories';
+  const body = { name, sort_order };
+  try {
+    const resp = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (resp.ok) {
+      showToast(editingCatId ? '✅ 分类已更新' : '✅ 分类已创建');
+      closeCatModal();
+      await reloadCats();
+    } else {
+      const e = await resp.json();
+      showToast('❌ ' + (e.error || '操作失败'), 'error');
     }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
 }
 
-// Init
-loadCategories();
+async function deleteCat() {
+  if (!confirm('确定删除该分类？其下所有产品线和参数也将被删除，此操作不可撤销。')) return;
+  try {
+    const resp = await fetch(API + '/categories/' + selectedCatId, { method: 'DELETE' });
+    if (resp.ok) {
+      showToast('✅ 分类已删除');
+      selectedCatId = 0; selectedLineId = 0; selectedLineName = ''; params = []; models = [];
+      await reloadCats();
+      updateRight();
+      renderTable();
+    } else {
+      const e = await resp.json();
+      showToast('❌ ' + (e.error || '删除失败'), 'error');
+    }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function reloadCats() {
+  const resp = await fetch(API + '/categories');
+  categories = await resp.json();
+  const sel = document.getElementById('catSelect');
+  sel.innerHTML = '<option value="0">-- 选择类别 --</option>';
+  categories.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+  sel.value = selectedCatId || '0';
+  document.getElementById('catActions').style.display = selectedCatId ? 'flex' : 'none';
+  if (selectedCatId) await onCatChange();
+  else { document.getElementById('lineList').innerHTML = '<div class="empty-hint">👆 先选择一个产品类别</div>'; }
+}
+
+// ===== Product Line CRUD =====
+let editingLineId = null;
+
+function openAddLine() {
+  editingLineId = null;
+  document.getElementById('lineModalTitle').textContent = '➕ 新建产品线';
+  document.getElementById('lineName').value = '';
+  document.getElementById('lineOrder').value = lines.length + 1;
+  document.getElementById('lineModal').classList.add('show');
+}
+
+function openEditLine(id) {
+  const l = lines.find(x => x.id === id);
+  if (!l) return;
+  editingLineId = id;
+  document.getElementById('lineModalTitle').textContent = '✏️ 编辑产品线';
+  document.getElementById('lineName').value = l.name;
+  document.getElementById('lineOrder').value = l.sort_order || 0;
+  document.getElementById('lineModal').classList.add('show');
+}
+
+function closeLineModal() { document.getElementById('lineModal').classList.remove('show'); }
+
+async function saveLine() {
+  const name = document.getElementById('lineName').value.trim();
+  if (!name) return showToast('产品线名称不能为空', 'error');
+  const sort_order = parseInt(document.getElementById('lineOrder').value) || 0;
+  const method = editingLineId ? 'PUT' : 'POST';
+  const url = editingLineId ? API + '/product-lines/' + editingLineId : API + '/product-lines';
+  const body = editingLineId ? { name, sort_order } : { category_id: selectedCatId, name, sort_order };
+  try {
+    const resp = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (resp.ok) {
+      showToast(editingLineId ? '✅ 产品线已更新' : '✅ 产品线已创建');
+      closeLineModal();
+      await onCatChange();
+      if (editingLineId && editingLineId === selectedLineId) { selectLine(editingLineId); }
+    } else {
+      const e = await resp.json();
+      showToast('❌ ' + (e.error || '操作失败'), 'error');
+    }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteLine(id) {
+  if (!confirm('确定删除该产品线？其下所有参数也将被删除，此操作不可撤销。')) return;
+  try {
+    const resp = await fetch(API + '/product-lines/' + id, { method: 'DELETE' });
+    if (resp.ok) {
+      showToast('✅ 产品线已删除');
+      if (id === selectedLineId) { selectedLineId = 0; selectedLineName = ''; params = []; models = []; }
+      await onCatChange();
+      updateRight();
+      renderTable();
+    } else {
+      const e = await resp.json();
+      showToast('❌ ' + (e.error || '删除失败'), 'error');
+    }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function saveParam() {
+  const data = {
+    param_type: paramForm.param_type,
+    param_name: document.getElementById('paramName').value.trim(),
+    param_value: document.getElementById('paramValue').value.trim(),
+    sort_order: parseInt(document.getElementById('paramOrder').value) || 0,
+  };
+  if (!data.param_name) return showToast('参数名称不能为空', 'error');
+  
+  const url = editingParamId ? API + '/parameters/' + editingParamId : API + '/parameters';
+  if (!editingParamId) data.line_id = selectedLineId;
+  
+  try {
+    const resp = await fetch(url, {
+      method: editingParamId ? 'PUT' : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error || e.detail || 'Unknown'); }
+    closeParamModal();
+    await selectLine(selectedLineId);
+    showToast(editingParamId ? '✅ 参数已更新' : '✅ 参数已添加');
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteParam(id) {
+  const p = params.find(x => x.id === id);
+  if (!confirm(`确定删除参数「${p?.param_name}」？`)) return;
+  await fetch(API + '/parameters/' + id, { method: 'DELETE' });
+  await selectLine(selectedLineId);
+  showToast('🗑️ 已删除');
+}
+
+// ===== Model CRUD =====
+function openAddModel() {
+  editingModelId = null;
+  document.getElementById('modelModalTitle').textContent = '➕ 添加型号';
+  document.getElementById('modelName').value = '';
+  document.getElementById('modelDesc').value = '';
+  document.getElementById('modelOrder').value = models.length + 1;
+  document.getElementById('modelModal').classList.add('show');
+}
+
+function openEditModel(id) {
+  const m = models.find(x => x.id === id);
+  if (!m) return;
+  editingModelId = id;
+  document.getElementById('modelModalTitle').textContent = '✏️ 编辑型号';
+  document.getElementById('modelName').value = m.name || '';
+  document.getElementById('modelDesc').value = m.description || '';
+  document.getElementById('modelOrder').value = m.sort_order || 0;
+  document.getElementById('modelModal').classList.add('show');
+}
+
+function closeModelModal() { document.getElementById('modelModal').classList.remove('show'); }
+
+async function saveModel() {
+  const data = {
+    name: document.getElementById('modelName').value.trim(),
+    description: document.getElementById('modelDesc').value.trim(),
+    sort_order: parseInt(document.getElementById('modelOrder').value) || 0,
+  };
+  if (!data.name) return showToast('型号名称不能为空', 'error');
+  
+  const url = editingModelId ? API + '/product-models/' + editingModelId : API + '/product-models';
+  if (!editingModelId) data.line_id = selectedLineId;
+  
+  try {
+    const resp = await fetch(url, {
+      method: editingModelId ? 'PUT' : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!resp.ok) throw new Error('Failed');
+    closeModelModal();
+    const mr = await fetch(API + '/product-models?line_id=' + selectedLineId).then(r => r.json());
+    models = Array.isArray(mr) ? mr : [];
+    renderModels();
+    showToast(editingModelId ? '✅ 型号已更新' : '✅ 型号已添加');
+  } catch(e) { showToast('❌ 保存失败', 'error'); }
+}
+
+async function deleteModel(id) {
+  const m = models.find(x => x.id === id);
+  if (!confirm(`确定删除型号「${m?.name}」？`)) return;
+  await fetch(API + '/product-models/' + id, { method: 'DELETE' });
+  const mr = await fetch(API + '/product-models?line_id=' + selectedLineId).then(r => r.json());
+  models = Array.isArray(mr) ? mr : [];
+  renderModels();
+  showToast('🗑️ 已删除');
+}
+
+// ===== Upload Modal =====
+let uploadFile = null;
+
+function openUploadModal() {
+  if (!selectedLineId) return showToast('请先选择产品线', 'error');
+  uploadFile = null;
+  document.getElementById('uploadFileName').textContent = '';
+  document.getElementById('uploadFileSize').textContent = '';
+  document.getElementById('fileCard').style.display = 'none';
+  document.getElementById('uploadZone').style.display = '';
+  document.getElementById('uploadModal').classList.add('show');
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.remove('show');
+}
+
+function onUploadZoneClick() {
+  document.getElementById('uploadFileInput').click();
+}
+
+function onUploadDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.add('dragover');
+}
+
+function onUploadDragLeave() {
+  document.getElementById('uploadZone').classList.remove('dragover');
+}
+
+function onUploadDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('dragover');
+  const file = e.dataTransfer.files?.[0];
+  if (file) showFileCard(file);
+}
+
+function onFileSelected() {
+  const file = document.getElementById('uploadFileInput').files?.[0];
+  if (file) showFileCard(file);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function showFileCard(file) {
+  uploadFile = file;
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('uploadFileName').textContent = file.name;
+  document.getElementById('uploadFileSize').textContent = formatSize(file.size);
+  document.getElementById('fileCard').style.display = '';
+}
+
+function clearUploadFile() {
+  uploadFile = null;
+  document.getElementById('uploadFileInput').value = '';
+  document.getElementById('fileCard').style.display = 'none';
+  document.getElementById('uploadZone').style.display = '';
+}
+
+async function doUpload() {
+  if (!uploadFile) return showToast('请先选择文件', 'error');
+  
+  const form = new FormData();
+  form.append('file', uploadFile);
+  form.append('line_id', selectedLineId);
+  form.append('param_type', 'software');
+  
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('uploadBtn').textContent = '⏳ 上传中...';
+  
+  try {
+    const resp = await fetch(API + '/parameters/upload', { method: 'POST', body: form });
+    const data = await resp.json();
+    if (resp.ok) {
+      showToast(`✅ 成功导入 ${data.imported} 条参数`);
+      closeUploadModal();
+      await selectLine(selectedLineId);
+    } else {
+      showToast('❌ ' + (data.error || '导入失败'), 'error');
+    }
+  } catch(e) { showToast('❌ ' + e.message, 'error'); }
+  
+  document.getElementById('uploadBtn').disabled = false;
+  document.getElementById('uploadBtn').textContent = '⬆️ 确认上传';
+}
+
+// ===== Preview & Export =====
+async function generatePreview() {
+  const ids = checkedIds.size ? [...checkedIds] : params.map(p => p.id);
+  const resp = await fetch(API + '/generate/preview', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({line_id: selectedLineId, param_ids: ids})
+  });
+  const data = await resp.json();
+  
+  document.getElementById('previewInfo').innerHTML = `<h2 style="font-size:1.1em;color:#1e293b">技术参数表</h2><p style="font-size:.8em;color:#94a3b8">${data.category} — ${data.product_line}</p>`;
+  
+  const params_preview = data.parameters || [];
+  document.getElementById('previewCount').textContent = params_preview.length;
+  
+  if (!params_preview.length) {
+    document.getElementById('previewTable').innerHTML = '<p style="text-align:center;color:#64748b;padding:30px">暂无参数</p>';
+  } else {
+    document.getElementById('previewTable').innerHTML = `<table class="preview-table">
+      <thead><tr><th style="width:40px">序号</th><th>技术参数名称</th></tr></thead>
+      <tbody>${params_preview.map((p,i) => `<tr><td style="text-align:center;color:#64748b">${i+1}</td><td>${esc(p.name)}</td></tr>`).join('')}</tbody>
+    </table>`;
+  }
+  document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreview() { document.getElementById('previewModal').classList.remove('show'); }
+
+async function downloadDocx() {
+  if (!selectedLineId) return;
+  const ids = checkedIds.size ? [...checkedIds] : params.map(p => p.id);
+  try {
+    const resp = await fetch(API + '/generate/docx', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({line_id: selectedLineId, param_ids: ids})
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error || 'Failed'); }
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `技术参数_${selectedLineName}.docx`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✅ Word 文档下载成功');
+  } catch(e) { showToast('❌ 导出失败: ' + e.message, 'error'); }
+}
+
+async function copyPreview() {
+  const ids = checkedIds.size ? [...checkedIds] : params.map(p => p.id);
+  const resp = await fetch(API + '/generate/preview', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({line_id: selectedLineId, param_ids: ids})
+  });
+  const data = await resp.json();
+  let text = '技术参数表\n' + data.category + ' — ' + data.product_line + '\n' + '='.repeat(50) + '\n\n';
+  (data.parameters||[]).forEach((p,i) => {
+    text += (i+1) + '. ' + p.name + '\n';
+    if (p.value) text += '   要求：' + p.value + '\n';
+  });
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('✅ 已复制到剪贴板');
+  } catch { showToast('❌ 复制失败', 'error'); }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
-
-</div><!-- end main-content -->
 
 </body>
 </html>
