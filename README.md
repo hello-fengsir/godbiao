@@ -139,18 +139,6 @@ bid_categories (类别)
   <img src="screenshots/model-settings.png" width="800" alt="模型设置">
 </p>
 
-### 比对结果 — 逐项核查 + 综合评分
-
-<p align="center">
-  <img src="screenshots/result-overview.jpg" width="800" alt="结果概览">
-</p>
-
-### 详细分析 — 满足度 + 建议 + 关键信息提取
-
-<p align="center">
-  <img src="screenshots/result-detail.jpg" width="800" alt="详细分析">
-</p>
-
 ---
 
 ## ☕ 赞赏
