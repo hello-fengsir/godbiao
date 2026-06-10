@@ -69,7 +69,29 @@ godbiao/
 
 ## 🎨 截图
 
-*（运行 `docker compose up -d` 后访问 http://localhost:8880 体验）*
+### 首页 — 上传投标文件 + 招标要求
+
+<p align="center">
+  <img src="screenshots/homepage.png" width="800" alt="首页">
+</p>
+
+### 模型设置 — 支持 10+ 大模型
+
+<p align="center">
+  <img src="screenshots/model-settings.png" width="800" alt="模型设置">
+</p>
+
+### 比对结果 — 逐项核查 + 综合评分
+
+<p align="center">
+  <img src="screenshots/result-overview.jpg" width="800" alt="结果概览">
+</p>
+
+### 详细分析 — 满足度 + 建议 + 关键信息提取
+
+<p align="center">
+  <img src="screenshots/result-detail.jpg" width="800" alt="详细分析">
+</p>
 
 ## ⚠️ 免责声明
 
