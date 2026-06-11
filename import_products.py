@@ -1,4 +1,4 @@
-"""导入深信服产品参数到数据库 — 对齐当前表结构"""
+"""导入产品参数到数据库 — 对齐当前表结构"""
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
