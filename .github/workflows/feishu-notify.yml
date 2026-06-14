@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send to Feishu
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           FEISHU_WEBHOOK: https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81
         with:
