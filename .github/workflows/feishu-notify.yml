@@ -1,6 +1,14 @@
 name: Feishu Notify
 
 on:
+  issues:
+    types: [opened]
+  release:
+    types: [published]
+  pull_request:
+    types: [opened]
+  star:
+    types: [created]
   push:
     branches: [main]
 
@@ -14,10 +22,37 @@ jobs:
           FEISHU_WEBHOOK: https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81
         with:
           script: |
-            const type = 'Code Push';
-            const title = context.payload.head_commit.message.split('\n')[0];
-            const author = context.payload.head_commit.author.name;
-            const url = context.payload.head_commit.url;
+            const event = context.eventName;
+            let type = '';
+            let title = '';
+            let author = '';
+            let url = '';
+            if (event === 'issues') {
+              type = 'New Issue';
+              title = '#' + context.payload.issue.number + ' ' + context.payload.issue.title;
+              author = context.payload.issue.user.login;
+              url = context.payload.issue.html_url;
+            } else if (event === 'release') {
+              type = 'New Release';
+              title = context.payload.release.tag_name + ' - ' + context.payload.release.name;
+              author = context.payload.release.author.login;
+              url = context.payload.release.html_url;
+            } else if (event === 'pull_request') {
+              type = 'New PR';
+              title = '#' + context.payload.pull_request.number + ' ' + context.payload.pull_request.title;
+              author = context.payload.pull_request.user.login;
+              url = context.payload.pull_request.html_url;
+            } else if (event === 'star') {
+              type = 'New Star';
+              title = context.repo.repo + ' got a new star!';
+              author = context.payload.sender.login;
+              url = context.payload.repository.html_url;
+            } else if (event === 'push') {
+              type = 'Code Push';
+              title = context.payload.head_commit.message.split('\n')[0];
+              author = context.payload.head_commit.author.name;
+              url = context.payload.head_commit.url;
+            }
             const repo = context.repo.owner + '/' + context.repo.repo;
             const body = JSON.stringify({
               msg_type: 'interactive',
