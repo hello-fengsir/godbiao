@@ -1,0 +1,13 @@
+name: Three Events
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [opened]
+  release:
+    types: [published]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hello
