@@ -1,0 +1,32 @@
+name: Feishu Issue Notify
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send to Feishu
+        run: |
+          curl -s -X POST "https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msg_type": "interactive",
+              "card": {
+                "header": {
+                  "title": {"tag": "plain_text", "content": "🔔 GitHub 新 Issue"},
+                  "template": "blue"
+                },
+                "elements": [
+                  {
+                    "tag": "div",
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "**仓库：** ${{ github.repository }}\n**编号：** #${{ github.event.issue.number }}\n**标题：** ${{ github.event.issue.title }}\n**作者：** ${{ github.event.issue.user.login }}\n**链接：** [点击查看](${{ github.event.issue.html_url }})"
+                    }
+                  }
+                ]
+              }
+            }'
