@@ -9,6 +9,8 @@ on:
     types: [opened]
   star:
     types: [created]
+  push:
+    branches: [main]
 
 jobs:
   notify:
@@ -37,6 +39,12 @@ jobs:
             echo "title=${{ github.event.repository.name }} 获得了新 Star！" >> $GITHUB_OUTPUT
             echo "author=${{ github.event.sender.login }}" >> $GITHUB_OUTPUT
             echo "url=${{ github.event.repository.html_url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            echo "type=📦 代码更新" >> $GITHUB_OUTPUT
+            COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -1)
+            echo "title=\${COMMIT_MSG}" >> $GITHUB_OUTPUT
+            echo "author=${{ github.event.head_commit.author.name }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.head_commit.url }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Send to Feishu
