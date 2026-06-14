@@ -16,44 +16,44 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify
-        uses: actions/github-script@v7
+      - name: Build and Send
+        uses: actions/github-script@v6
+        env:
+          FEISHU_WEBHOOK: https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81
         with:
           script: |
             const event = context.eventName;
-            let type = '';
-            let title = '';
-            let author = '';
-            let url = '';
+            let type = '', title = '', author = '', url = '';
 
             if (event === 'issues') {
-              type = '🔔 新 Issue';
-              title = `#${context.payload.issue.number} ${context.payload.issue.title}`;
+              type = 'New Issue';
+              title = '#' + context.payload.issue.number + ' ' + context.payload.issue.title;
               author = context.payload.issue.user.login;
               url = context.payload.issue.html_url;
             } else if (event === 'release') {
-              type = '🚀 新版本发布';
-              title = `${context.payload.release.tag_name} - ${context.payload.release.name}`;
+              type = 'New Release';
+              title = context.payload.release.tag_name + ' - ' + context.payload.release.name;
               author = context.payload.release.author.login;
               url = context.payload.release.html_url;
             } else if (event === 'pull_request') {
-              type = '🔀 新 PR';
-              title = `#${context.payload.pull_request.number} ${context.payload.pull_request.title}`;
+              type = 'New PR';
+              title = '#' + context.payload.pull_request.number + ' ' + context.payload.pull_request.title;
               author = context.payload.pull_request.user.login;
               url = context.payload.pull_request.html_url;
             } else if (event === 'star') {
-              type = '⭐ 新 Star';
-              title = `${context.repo.repo} 获得了新 Star！`;
+              type = 'New Star';
+              title = context.repo.repo + ' got a new star!';
               author = context.payload.sender.login;
               url = context.payload.repository.html_url;
             } else if (event === 'push') {
-              type = '📦 代码更新';
+              type = 'Code Push';
               title = context.payload.head_commit.message.split('\n')[0];
               author = context.payload.head_commit.author.name;
               url = context.payload.head_commit.url;
             }
 
-            const body = {
+            const repo = context.repo.owner + '/' + context.repo.repo;
+            const body = JSON.stringify({
               msg_type: 'interactive',
               card: {
                 header: {
@@ -65,15 +65,16 @@ jobs:
                     tag: 'div',
                     text: {
                       tag: 'lark_md',
-                      content: `**仓库：** ${context.repo.owner}/${context.repo.repo}\n**标题：** ${title}\n**作者：** ${author}\n**链接：** [点击查看](${url})`
+                      content: '**Repo:** ' + repo + '\n**Title:** ' + title + '\n**Author:** ' + author + '\n**Link:** [View](' + url + ')'
                     }
                   }
                 ]
               }
-            };
+            });
 
-            await fetch('https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81', {
+            const resp = await fetch(process.env.FEISHU_WEBHOOK, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body)
+              body: body
             });
+            console.log('Feishu response:', resp.status);
