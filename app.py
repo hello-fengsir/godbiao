@@ -67,8 +67,56 @@ async def result_page(request: Request, job_id: str):
     row = job_get(job_id)
     if not row:
         return HTMLResponse("<h2>任务未找到</h2>", 404)
+
+    job = dict(row)
+    result_data = {}
+    if job.get("result_json"):
+        try:
+            result_data = json.loads(job["result_json"])
+        except:
+            pass
+
+    # 提取内容比对结果
+    results = result_data.get("items", result_data.get("results", []))
+    total = len(results)
+    full_pass = sum(1 for r in results if r.get("status") == "满足")
+    partial = sum(1 for r in results if r.get("status") == "部分满足")
+    failed = sum(1 for r in results if r.get("status") in ("不满足", "缺失"))
+    full_pass_pct = round(full_pass / total * 100) if total else 0
+    partial_pct = round(partial / total * 100) if total else 0
+    failed_pct = round(failed / total * 100) if total else 0
+
+    # 提取格式评估结果
+    fmt_eval = result_data.get("format_eval", {})
+    fmt_score = fmt_eval.get("score", 0)
+    fmt_overall = fmt_eval.get("overall", "")
+    fmt_items = fmt_eval.get("items", [])
+
+    # 提取关键信息
+    key_info = result_data.get("key_info", {})
+
     tpl = templates.env.get_template("result.html")
-    return HTMLResponse(tpl.render({"request": request, "job": dict(row)}))
+    return HTMLResponse(tpl.render({
+        "request": request,
+        "job": job,
+        "bid_filename": job.get("bid_filename", ""),
+        "model": job.get("model_used", result_data.get("model", "")),
+        "tokens": job.get("tokens_used", result_data.get("tokens_used", 0)),
+        "eval_mode": job.get("eval_mode", "combined"),
+        "overall": result_data.get("overall", ""),
+        "results": results,
+        "total": total,
+        "full_pass": full_pass,
+        "full_pass_pct": full_pass_pct,
+        "partial": partial,
+        "partial_pct": partial_pct,
+        "failed": failed,
+        "failed_pct": failed_pct,
+        "fmt_score": fmt_score,
+        "fmt_overall": fmt_overall,
+        "fmt_items": fmt_items,
+        "key_info": key_info,
+    }))
 
 
 # ═══════════════════════════════════════════════════
@@ -164,22 +212,86 @@ async def test_key(data: dict):
     model = data.get("model", "")
     if not base_url or not api_key or not model:
         return JSONResponse({"error": "请填写完整信息"}, 400)
-    ok, msg = await test_api_key(base_url, api_key, model)
+    result = await test_api_key(base_url, api_key, model)
+    ok = result.get("ok", False)
+    msg = result.get("model", result.get("detail", ""))
     return {"ok": ok, "message": msg}
 
 
 @app.post("/compare/{job_id}")
-async def compare(job_id: str):
+async def compare(job_id: str, request: Request):
     row = job_get(job_id)
     if not row:
         return JSONResponse({"error": "任务不存在"}, 404)
 
-    _compare_progress[job_id] = {"phase": "content", "content_done": 0, "format_done": 0, "started_at": datetime.now().isoformat(), "error": None}
+    # 从前端 headers 读取 API Key 配置
+    provider = None
+    api_key = request.headers.get("X-API-Key", "")
+    api_base_url = request.headers.get("X-API-Base-Url", "")
+    api_model = request.headers.get("X-API-Model", "")
+    api_provider_name = request.headers.get("X-API-Provider-Name", "")
+    if api_provider_name:
+        try:
+            from urllib.parse import unquote
+            api_provider_name = unquote(api_provider_name)
+        except:
+            pass
+    if api_key and api_base_url and api_model:
+        provider = {
+            "name": api_provider_name or "Custom",
+            "base_url": api_base_url,
+            "api_key": api_key,
+            "model": api_model,
+        }
+
+    _compare_progress[job_id] = {
+        "phase": "content", "content_done": 0, "format_done": 0,
+        "started_at": datetime.now().isoformat(), "error": None,
+        "step": "正在逐条比对招标要求与投标响应..."
+    }
+
+    total_tokens = 0
 
     try:
-        result = await compare_bid(row["req_text"], row["bid_text"], row["eval_mode"], _compare_progress, job_id)
-        job_update(job_id, result_json=json.dumps(result, ensure_ascii=False))
+        # 步骤1: 内容逐条比对
+        _compare_progress[job_id]["step"] = "📋 正在逐条比对内容..."
+        content_result = await compare_bid(row["req_text"], row["bid_text"], provider, row["eval_mode"])
+        total_tokens += content_result.get("tokens_used", 0)
+        _compare_progress[job_id]["content_done"] = 1
+        _compare_progress[job_id]["phase"] = "format"
+        _compare_progress[job_id]["step"] = "📐 正在评估格式与排版..."
+
+        # 步骤2: 格式评估
+        format_result = await evaluate_format(row["bid_text"], provider)
+        total_tokens += format_result.get("tokens_used", 0)
+        _compare_progress[job_id]["format_done"] = 1
+        _compare_progress[job_id]["step"] = "📊 正在提取关键信息..."
+
+        # 步骤3: 提取关键信息
+        key_info_result = await extract_key_info(row["bid_text"], provider)
+        total_tokens += key_info_result.get("tokens_used", 0)
+        _compare_progress[job_id]["step"] = "✅ 正在生成报告..."
+
+        # 合并结果
+        model_name = content_result.get("model", "") or (provider["model"] if provider else "")
+        combined = {
+            "overall": content_result.get("overall", ""),
+            "items": content_result.get("items", []),
+            "format_eval": {
+                "overall": format_result.get("overall", ""),
+                "score": format_result.get("score", 0),
+                "items": format_result.get("items", []),
+            },
+            "key_info": key_info_result,
+            "tokens_used": total_tokens,
+            "model": model_name,
+        }
+
+        job_update(job_id, result_json=json.dumps(combined, ensure_ascii=False))
+        job_update(job_id, model_used=model_name)
+        job_update(job_id, tokens_used=total_tokens)
         _compare_progress[job_id]["phase"] = "done"
+        _compare_progress[job_id]["step"] = "✅ 分析完成"
         return {"ok": True, "job_id": job_id}
     except Exception as e:
         _compare_progress[job_id]["phase"] = "error"
@@ -195,6 +307,7 @@ async def compare_status(job_id: str):
         "content_done": info.get("content_done", 0),
         "format_done": info.get("format_done", 0),
         "error": info.get("error"),
+        "step": info.get("step", ""),
     }
 
 

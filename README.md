@@ -6,11 +6,25 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
 [![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-v2.0-3b82f6.svg)](https://github.com/hello-fengsir/godbiao/releases/tag/v2.0)
+[![Version](https://img.shields.io/badge/Version-v2.1-3b82f6.svg)](https://github.com/hello-fengsir/godbiao/releases/tag/v2.1)
 
 ---
 
-## ✨ v2.0 新增功能 🆕
+## 🆕 v2.1 更新内容
+
+| 模块 | 优化 |
+|---|---|
+| 📊 **评标结果增强** | 结果页完整展示三路 AI 分析：内容逐项比对（满足/部分满足/不满足百分比统计）+ 格式评估打分 + 关键信息提取（双方信息对比卡片） |
+| 🟢 **模型状态检测** | 首页 header 新增模型有效性指示器：无 Key → 待检测 → 🟢已验证 三种状态自动切换，绿色徽章显示当前模型名 |
+| 📱 **移动端适配** | 全站响应式：768px 断点，汉堡菜单 + 抽屉侧边栏 + 自适应布局，手机端可正常使用 |
+| ⏳ **评标进度优化** | 三步串行（内容比对 → 格式评估 → 关键信息）替代并行，步骤描述实时更新，ETA 估算更准确 |
+| 🔑 **前端 Key 透传** | 评标 API Key 从前端请求 header 读取，服务器零密钥存储，多用户互不干扰 |
+| 🔒 **安全脱敏** | 全面清理仓库：移除 docstring/placeholder 中厂商名，数据文件型号脱敏处理 |
+| 🏗️ **代码健壮性** | 结果页渲染容错（JSON 解析失败不崩溃）、model-presets API 兼容数组/对象两种返回格式 |
+
+---
+
+## ✨ v2.0 新增功能
 
 | 模块 | 功能 |
 |---|---|
@@ -67,10 +81,11 @@ docker compose up -d
 ### 评标流程
 
 1. 首页点击 **⚙️ 模型设置** → 选择提供商 → 粘贴 API Key → 保存
-2. 选择评标模式（合并/分离）
-3. 上传投标文件 + 填写招标要求
-4. 预览确认 → 开始 AI 比对
-5. 查看结果：逐项满足度 + 格式评分 + 关键信息提取
+2. 首页点击 **🔍 检测模型** 验证连接（通过后 header 显示 🟢 模型名）
+3. 选择评标模式（合并/分离）
+4. 上传投标文件 + 填写招标要求
+5. 预览确认 → 开始 AI 比对
+6. 查看结果：逐项满足度统计 + 格式评分 + 关键信息提取
 
 ### 制标流程
 
@@ -92,14 +107,14 @@ godbiao/
 ├── bid_api.py          # 制标路由（APIRouter, /api/bid/*）
 ├── models.py           # 统一数据层（评标 + 制标共 5 张表）
 ├── config.py           # 模型预置列表 & 配置
-├── llm_client.py       # LLM 调用封装（三路并行：比对/格式/关键信息）
+├── llm_client.py       # LLM 调用封装（三步串行：比对/格式/关键信息）
 ├── parser.py           # 文件解析（PDF/Word/OCR/TXT）
 ├── import_products.py  # Excel → SQLite 批量导入工具
 ├── templates/
-│   ├── index.html      # 评标首页（上传 + 历史记录）
+│   ├── index.html      # 评标首页（上传 + 模型检测 + 历史记录 + 移动端适配）
 │   ├── bidding.html    # 制标页面（类别→产品线→参数管理）
-│   ├── review.html     # 预览页
-│   └── result.html     # 结果页（逐项核查 + 关键信息）
+│   ├── review.html     # 预览页（进度条 + ETA）
+│   └── result.html     # 结果页（逐项核查 + 格式评分 + 关键信息）
 ├── static/
 ├── docker-compose.yml
 ├── Dockerfile
@@ -121,7 +136,7 @@ bid_categories (类别)
 
 ## 🎨 截图
 
-### 评标首页 — 上传投标文件 + 招标要求
+### 评标首页 — 模型状态检测 + 上传投标文件
 
 <p align="center">
   <img src="screenshots/homepage.png" width="800" alt="评标首页">

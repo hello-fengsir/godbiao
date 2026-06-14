@@ -64,6 +64,17 @@ input[type="file"]::file-selector-button:hover{background:#2563eb}
 .btn-settings:hover{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
 .btn-settings.has-key{color:#059669;border-color:#059669;background:#ecfdf5}
 
+/* Model status indicator */
+.model-status{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.btn-model-test{background:#fff;border:1px solid #e2e8f0;color:#475569;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.85em;font-weight:500;transition:all .2s}
+.btn-model-test:hover{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
+.btn-model-test:disabled{opacity:.5;cursor:wait}
+.btn-model-test.testing{color:#3b82f6;border-color:#3b82f6;background:#eff6ff}
+.model-verified{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;font-size:.85em;font-weight:600;color:#059669;transition:all .15s}
+.model-verified .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.model-verified .model-name{color:#065f46}
+.model-test-error{font-size:.78em;color:#dc2626;margin-top:4px}
+
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:640px){.two-col{grid-template-columns:1fr}}
 
@@ -144,9 +155,65 @@ input[type="file"]::file-selector-button:hover{background:#2563eb}
 .h-btn-del:hover{background:#fee2e2}
 .h-empty{text-align:center;color:#94a3b8;padding:20px 0;font-size:.85em}
 
+
+/* ═══ Mobile Responsive ═══ */
+.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:#fff;border-bottom:1px solid #e2e8f0;z-index:60;align-items:center;padding:0 16px;gap:12px}
+.mobile-topbar .brand{font-size:1.1em;font-weight:800;color:#1e293b;flex:1}
+.mobile-topbar .brand span{color:#3b82f6}
+.hamburger{background:none;border:none;font-size:1.4em;cursor:pointer;padding:8px;color:#475569}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:49}
+
+@media(max-width:768px){
+  .mobile-topbar{display:flex}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:55}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .main-content{margin-left:0!important;padding-top:56px}
+  .header{padding:32px 16px 28px}
+  .header .logo{font-size:1.6em}
+  .header .sub{font-size:.92em;line-height:1.5}
+  .header .badge-row{gap:12px;margin-top:16px}
+  .header .badge{font-size:.75em}
+  .container{padding:0 12px 40px}
+  .card{padding:18px 14px;border-radius:10px}
+  .card h2{font-size:.9em;margin-bottom:12px}
+  .mode-selector{flex-direction:column;gap:8px}
+  .mode-opt{padding:12px}
+  .mode-opt .mode-icon{font-size:1.3em}
+  .mode-opt .mode-label{font-size:.82em}
+  .mode-opt .mode-desc{font-size:.7em}
+  .two-col{grid-template-columns:1fr!important}
+  .separate-row{grid-template-columns:1fr!important}
+  textarea{min-height:120px}
+  .btn-primary{padding:14px 20px;font-size:.92em}
+  .modal{width:95%;padding:20px;max-height:85vh}
+  .modal-overlay{padding-top:20px}
+  .form-actions{flex-direction:column;gap:6px}
+  .history-row{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .history-row .h-file{flex-basis:100%;font-size:.82em}
+  .history-row .h-meta{font-size:.7em}
+  .key-row{flex-wrap:wrap;gap:6px;padding:10px}
+  .key-row .provider-name{min-width:auto;font-size:.8em}
+  .key-row .key-info{font-size:.72em}
+  .model-status{gap:4px}
+  .model-verified{padding:6px 12px;font-size:.8em}
+  .btn-settings,.btn-model-test{padding:6px 14px;font-size:.8em}
+  .upload-card{padding:24px 20px;margin:0 12px}
+  .upload-card h3{font-size:1em}
+  .upload-card p{font-size:.8em}
+}
+
 </style>
 </head>
 <body>
+
+<!-- Mobile top bar -->
+<div class="mobile-topbar">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="brand">神奇<span>阿标</span></div>
+  <button class="btn-settings" style="padding:6px 12px;font-size:.8em" onclick="openSettings()">⚙️</button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- Sidebar -->
 <div class="sidebar">
@@ -184,8 +251,24 @@ input[type="file"]::file-selector-button:hover{background:#2563eb}
     <span class="badge">多模型支持</span>
     <span class="badge">安全本地处理</span>
   </div>
-  <div style="margin-top:16px">
-    <button class="btn-settings" id="settingsBtn" onclick="openSettings()">⚙️ 模型设置</button>
+  <div style="margin-top:14px">
+    <div class="model-status" id="modelStatus">
+      <!-- State 1: No active key → just the settings gear -->
+      <span id="statusNoKey">
+        <button class="btn-settings" onclick="openSettings()">⚙️ 模型设置</button>
+      </span>
+      <!-- State 2: Active key exists, not verified → gear + test button -->
+      <span id="statusNeedTest" style="display:none">
+        <button class="btn-settings" onclick="openSettings()">⚙️ 模型设置</button>
+        <button class="btn-model-test" id="modelTestBtn" onclick="testActiveModel()">🔍 检测模型</button>
+      </span>
+      <!-- State 3: Model verified → show model name + gear -->
+      <span id="statusVerified" style="display:none">
+        <span class="model-verified"><span class="dot"></span><span class="model-name" id="modelActiveName"></span></span>
+        <button class="btn-settings" onclick="openSettings()">⚙️</button>
+      </span>
+    </div>
+    <div id="modelTestError" class="model-test-error" style="display:none"></div>
   </div>
 </div>
 
@@ -298,8 +381,10 @@ input[type="file"]::file-selector-button:hover{background:#2563eb}
 </div>
 
 <script>
+
+function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show')}
 const STORAGE_KEY='godbiao_keys';let modelPresets=[],_selModel='';
-async function initSettings(){cleanExpiredKeys();try{const r=await fetch('/api/model-presets');const d=await r.json();modelPresets=d.presets||[]}catch(e){}const s=document.getElementById('providerSelect');s.innerHTML='<option value="">-- 选择模型提供商 --</option>';modelPresets.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;s.appendChild(o)});refreshKeyList()}
+async function initSettings(){cleanExpiredKeys();try{const r=await fetch('/api/model-presets');const d=await r.json();modelPresets=Array.isArray(d)?d:d.presets||[]}catch(e){}const s=document.getElementById('providerSelect');s.innerHTML='<option value="">-- 选择模型提供商 --</option>';modelPresets.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;s.appendChild(o)});refreshKeyList()}
 function keys(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return[]}}
 function saveKeys(a){localStorage.setItem(STORAGE_KEY,JSON.stringify(a))}
 function refreshKeyList(){const ks=keys(),list=document.getElementById('keyList'),btn=document.getElementById('settingsBtn'),aid=localStorage.getItem('godbiao_active')||'';if(ks.length===0){list.innerHTML='<p style="color:#94a3b8;text-align:center;padding:20px 0">暂无已保存的 API Key</p>';btn.classList.remove('has-key')}else{list.innerHTML=ks.map(k=>{const ia=k.id===aid;return`<div class="key-row${ia?' current':''}"><span class="provider-name">${esc(k.name)}${ia?' <span class="current-badge">当前</span>':''}</span><span class="key-info">${esc(k.model)} · ${mask(k.api_key)}</span>${ia?'':'<button class="btn-sm btn-sm-use" onclick="useKey(\'${k.id}\')">使用</button>'}<button class="btn-sm btn-sm-test" onclick="testSavedKey(\'${k.id}\')">测试</button><button class="btn-sm btn-sm-del" onclick="delKey(\'${k.id}\')">删除</button></div>`}).join('');btn.classList.add('has-key')}}
@@ -308,17 +393,85 @@ function cleanExpiredKeys(){const THREE_DAYS=3*24*60*60*1000,now=Date.now();let 
 function mask(k){return k&&k.length>8?k.slice(0,6)+'...'+k.slice(-4):'***'}
 function onProviderChange(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),o=document.getElementById('modelOptions');if(!p){o.innerHTML='';_selModel='';return}o.innerHTML=p.models.map((m,i)=>`<span class="model-opt${i===0?' sel':''}" onclick="pickModel(this,'${esc(m)}')">${esc(m)}</span>`).join('');_selModel=p.models[0]}
 function pickModel(e,m){e.parentElement.querySelectorAll('.model-opt').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');_selModel=m}
-function useKey(id){localStorage.setItem('godbiao_active',id);refreshKeyList()}
+function useKey(id){localStorage.setItem('godbiao_active',id);refreshKeyList();updateModelStatus()}
 async function testSavedKey(id){const k=keys().find(x=>x.id===id);if(!k)return;await doTest(k.base_url,k.api_key,k.model)}
 async function testCurrentKey(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),k=document.getElementById('apiKeyInput').value.trim(),m=_selModel||(p?p.models[0]:'');if(!p){showResult('请先选择模型提供商',false);return}if(!k){showResult('请先输入 API Key',false);return}await doTest(p.base_url,k,m)}
-async function doTest(bu,ak,md){const btn=document.getElementById('testBtn');btn.disabled=true;btn.textContent='⏳ 测试中...';showResult('',null);try{const r=await fetch('/api/test-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:bu,api_key:ak,model:md})});const d=await r.json();showResult(d.ok?`✅ 连接成功！模型: ${d.model}`:`❌ 失败 (HTTP ${d.status||'?'}): ${d.detail}`,d.ok)}catch(e){showResult(`❌ 网络错误: ${e.message}`,false)}btn.disabled=false;btn.textContent='🔍 测试连接'}
+async function doTest(bu,ak,md){const btn=document.getElementById('testBtn');btn.disabled=true;btn.textContent='⏳ 测试中...';showResult('',null);try{const r=await fetch('/api/test-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:bu,api_key:ak,model:md})});const d=await r.json();showResult(d.ok?`✅ 连接成功！模型: ${d.model}`:`❌ 失败 (HTTP ${d.status||'?'}): ${d.detail}`,d.ok);if(d.ok){markModelVerified(md);updateModelStatus()}}catch(e){showResult(`❌ 网络错误: ${e.message}`,false)}btn.disabled=false;btn.textContent='🔍 测试连接'}
 function showResult(m,ok){const e=document.getElementById('testResult');e.textContent=m;e.className='test-result '+(ok===true?'ok':ok===false?'fail':'')}
-function saveKey(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),k=document.getElementById('apiKeyInput').value.trim(),m=_selModel||(p?p.models[0]:'');if(!p){alert('请选择模型提供商');return}if(!k){alert('请输入 API Key');return}const ks=keys(),id=p.id+'_'+Date.now();ks.push({id,name:p.name,base_url:p.base_url,model:m,api_key:k,saved_at:Date.now()});saveKeys(ks);localStorage.setItem('godbiao_active',id);document.getElementById('apiKeyInput').value='';document.getElementById('providerSelect').value='';document.getElementById('modelOptions').innerHTML='';_selModel='';showResult('✅ 已保存并使用',true);refreshKeyList()}
-function delKey(id){let ks=keys().filter(k=>k.id!==id);saveKeys(ks);if(localStorage.getItem('godbiao_active')===id)localStorage.setItem('godbiao_active',ks.length>0?ks[0].id:'');refreshKeyList()}
+function saveKey(){const s=document.getElementById('providerSelect'),p=modelPresets.find(x=>x.id===s.value),k=document.getElementById('apiKeyInput').value.trim(),m=_selModel||(p?p.models[0]:'');if(!p){alert('请选择模型提供商');return}if(!k){alert('请输入 API Key');return}const ks=keys(),id=p.id+'_'+Date.now();ks.push({id,name:p.name,base_url:p.base_url,model:m,api_key:k,saved_at:Date.now()});saveKeys(ks);localStorage.setItem('godbiao_active',id);document.getElementById('apiKeyInput').value='';document.getElementById('providerSelect').value='';document.getElementById('modelOptions').innerHTML='';_selModel='';showResult('✅ 已保存并使用',true);refreshKeyList();updateModelStatus()}
+function delKey(id){let ks=keys().filter(k=>k.id!==id);saveKeys(ks);if(localStorage.getItem('godbiao_active')===id)localStorage.setItem('godbiao_active',ks.length>0?ks[0].id:'');refreshKeyList();updateModelStatus()}
 function openSettings(){document.getElementById('settingsModal').classList.add('show');initSettings()}
-function closeSettings(){document.getElementById('settingsModal').classList.remove('show')}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('show');updateModelStatus()}
 document.addEventListener('click',function(e){if(e.target.id==='settingsModal')closeSettings()})
 
+// ── Model status indicator ──
+function getActiveKey(){const aid=localStorage.getItem('godbiao_active')||'';if(!aid)return null;return keys().find(k=>k.id===aid)||null}
+function getVerifiedModel(){try{return JSON.parse(localStorage.getItem('godbiao_verified')||'null')}catch{return null}}
+function markModelVerified(modelName){localStorage.setItem('godbiao_verified',JSON.stringify({model:modelName,at:Date.now()}))}
+function clearVerified(){localStorage.removeItem('godbiao_verified')}
+
+function updateModelStatus(){
+  const ak=getActiveKey();
+  const ver=getVerifiedModel();
+  const noKey=document.getElementById('statusNoKey');
+  const needTest=document.getElementById('statusNeedTest');
+  const verified=document.getElementById('statusVerified');
+  const errEl=document.getElementById('modelTestError');
+  errEl.style.display='none';
+
+  if(ak && ver && ver.model){
+    // State 3: verified model
+    noKey.style.display='none';
+    needTest.style.display='none';
+    verified.style.display='';
+    document.getElementById('modelActiveName').textContent=ver.model;
+  }else if(ak){
+    // State 2: active key but not verified
+    noKey.style.display='none';
+    needTest.style.display='';
+    verified.style.display='none';
+  }else{
+    // State 1: no active key
+    noKey.style.display='';
+    needTest.style.display='none';
+    verified.style.display='none';
+  }
+}
+
+async function testActiveModel(){
+  const ak=getActiveKey();
+  if(!ak){showModelError('请先在「模型设置」中添加并选择模型');return}
+  const btn=document.getElementById('modelTestBtn');
+  const errEl=document.getElementById('modelTestError');
+  btn.disabled=true;btn.classList.add('testing');btn.textContent='⏳ 检测中...';
+  errEl.style.display='none';
+  try{
+    const r=await fetch('/api/test-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:ak.base_url,api_key:ak.api_key,model:ak.model})});
+    const d=await r.json();
+    if(d.ok){
+      markModelVerified(d.model||ak.model);
+      updateModelStatus();
+    }else{
+      clearVerified();
+      showModelError(`❌ 连接失败 (HTTP ${d.status||'?'}): ${d.detail||'未知错误'}`);
+      updateModelStatus();
+    }
+  }catch(e){
+    clearVerified();
+    showModelError(`❌ 网络错误: ${e.message}`);
+    updateModelStatus();
+  }
+  btn.disabled=false;btn.classList.remove('testing');btn.textContent='🔍 检测模型';
+}
+
+function showModelError(msg){
+  const e=document.getElementById('modelTestError');
+  e.textContent=msg;e.style.display='';
+  setTimeout(()=>{e.style.display='none'},5000);
+}
+
+// On page load: restore verified model status
+updateModelStatus();
 
 // History panel
 async function loadHistory(){const list=document.getElementById('historyList');try{const r=await fetch('/api/jobs');const d=await r.json();if(!d.jobs||d.jobs.length===0){list.innerHTML='<p class="h-empty">暂无历史记录</p>';return}list.innerHTML=d.jobs.map(j=>`<div class="history-row"><span class="h-file" title="${esc(j.bid_filename)}">${esc(j.bid_filename||'未知文件')}</span><span class="h-meta">${(j.created_at||'').slice(0,16).replace('T',' ')}</span><span class="h-meta">${esc(j.model_used||'未比对')}</span><a href="/result/${j.id}" class="h-btn h-btn-view">查看</a><button class="h-btn h-btn-del" onclick="deleteHistory('${j.id}')">删除</button></div>`).join('')}catch(e){list.innerHTML='<p class="h-empty">加载失败</p>'}}

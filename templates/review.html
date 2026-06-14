@@ -221,6 +221,7 @@ async function pollProgress(){
     }
 
     // Map server phase to UI
+    if(d.step)updateStatus(d.step);
     if(d.content_done && d.format_done){
       setPhase('format');updateBar(85);updateStatus('正在生成分析报告...');
     }else if(d.content_done){
@@ -230,7 +231,7 @@ async function pollProgress(){
     }
 
     // Update ETA
-    if(elapsed>5)updateEst(Math.max(0,90-elapsed));
+    if(elapsed>3){const totalEst=d.content_done?120:90;updateEst(Math.max(0,totalEst-elapsed));}
 
   }catch(e){/* ignore poll errors */}
 }
