@@ -164,6 +164,13 @@ bid_categories (类别)
 
 本项目仅供学习交流使用，禁止用于任何商业用途。使用者须自行承担因使用本项目产生的任何法律风险与责任。
 
+## 📸 产品截图
+
+<!-- 请将截图放入 images/ 目录 -->
+| 评标系统 | 比对结果 | 制标系统 |
+|---|---|---|
+| ![评标系统](images/评标系统.png) | ![比对结果](images/比对结果.png) | ![制标系统](images/制标系统.png) |
+
 ## 📄 License
 
 MIT License © [峰Sir](https://github.com/hello-fengsir)
