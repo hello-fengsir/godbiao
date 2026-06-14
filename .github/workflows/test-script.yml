@@ -1,0 +1,16 @@
+name: Test Script
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log('Event:', context.eventName);
+            console.log('Repo:', context.repo.owner + '/' + context.repo.repo);
