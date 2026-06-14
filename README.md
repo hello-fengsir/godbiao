@@ -173,4 +173,6 @@ bid_categories (类别)
 
 ## 📄 License
 
+> 本文档由 GitHub Actions 自动通知测试更新
+
 MIT License © [峰Sir](https://github.com/hello-fengsir)
