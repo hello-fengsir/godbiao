@@ -1,13 +1,37 @@
-name: Feishu Issue Notify
+name: Feishu Notify
 
 on:
   issues:
+    types: [opened]
+  release:
+    types: [published]
+  pull_request:
     types: [opened]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Detect event type
+        id: event
+        run: |
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            echo "type=🔔 新 Issue" >> $GITHUB_OUTPUT
+            echo "title=#${{ github.event.issue.number }} ${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+            echo "author=${{ github.event.issue.user.login }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.issue.html_url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            echo "type=🚀 新版本发布" >> $GITHUB_OUTPUT
+            echo "title=${{ github.event.release.tag_name }} - ${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+            echo "author=${{ github.event.release.author.login }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.release.html_url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "type=🔀 新 PR" >> $GITHUB_OUTPUT
+            echo "title=#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+            echo "author=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send to Feishu
         run: |
           curl -s -X POST "https://open.feishu.cn/open-apis/bot/v2/hook/ce3e2c30-4176-4f51-9051-b96399858e81" \
@@ -16,7 +40,7 @@ jobs:
               "msg_type": "interactive",
               "card": {
                 "header": {
-                  "title": {"tag": "plain_text", "content": "🔔 GitHub 新 Issue"},
+                  "title": {"tag": "plain_text", "content": "${{ steps.event.outputs.type }}"},
                   "template": "blue"
                 },
                 "elements": [
@@ -24,7 +48,7 @@ jobs:
                     "tag": "div",
                     "text": {
                       "tag": "lark_md",
-                      "content": "**仓库：** ${{ github.repository }}\n**编号：** #${{ github.event.issue.number }}\n**标题：** ${{ github.event.issue.title }}\n**作者：** ${{ github.event.issue.user.login }}\n**链接：** [点击查看](${{ github.event.issue.html_url }})"
+                      "content": "**仓库：** ${{ github.repository }}\n**标题：** ${{ steps.event.outputs.title }}\n**作者：** ${{ steps.event.outputs.author }}\n**链接：** [点击查看](${{ steps.event.outputs.url }})"
                     }
                   }
                 ]
