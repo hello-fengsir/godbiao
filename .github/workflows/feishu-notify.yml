@@ -2,8 +2,12 @@ name: Feishu Notify
 on:
   issues:
     types: [opened]
+  release:
+    types: [published]
+  push:
+    branches: [main]
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Issue triggered!"
+      - run: echo "Event: ${{ github.event_name }}"
