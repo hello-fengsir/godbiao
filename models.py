@@ -28,6 +28,12 @@ def get_db():
 
 def init_all_tables():
     """创建所有表（评标 + 制标）"""
+    # 修复 Docker 卷挂载陷阱：首次部署时 host 上不存在 godbiao.db，
+    # Docker 会将其创建为目录而非文件，导致 sqlite3 报错
+    db_path = str(DB_PATH)
+    if os.path.isdir(db_path):
+        import shutil
+        shutil.rmtree(db_path)
     _init_review_tables()
     _init_bid_tables()
 
