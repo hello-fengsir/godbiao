@@ -7,6 +7,8 @@ on:
     types: [published]
   pull_request:
     types: [opened]
+  star:
+    types: [created]
 
 jobs:
   notify:
@@ -30,6 +32,11 @@ jobs:
             echo "title=#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
             echo "author=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
             echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "star" ]; then
+            echo "type=⭐ 新 Star" >> $GITHUB_OUTPUT
+            echo "title=${{ github.event.repository.name }} 获得了新 Star！" >> $GITHUB_OUTPUT
+            echo "author=${{ github.event.sender.login }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.repository.html_url }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Send to Feishu
